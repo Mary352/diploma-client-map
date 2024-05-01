@@ -10,12 +10,19 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { MapWithSearch } from "./MapWithSearch"
 
 // type Props = {
 //    errorMessage: string
 // }
 
 export const PosterUpdatePage = () => {
+
+   // ---YMaps
+   const [selectedAddressCoords, setSelectedAddressCoords] = useState<number[]>([]);
+   const [selectedTextAddress, setSelectedTextAddress] = useState<string>('');
+
+
    const { id } = useParams();
 
    const poster = useAppSelector((state) => state.posters.poster)
@@ -49,7 +56,9 @@ export const PosterUpdatePage = () => {
    // const phone = useAppSelector(state => state.posters.phoneInput)
    // const address = useAppSelector(state => state.posters.addressInput)
 
-   const posterCategories = useAppSelector(state => state.posters.posterCategories)
+   // const posterCategories = useAppSelector(state => state.posters.posterCategories)
+   const petCategories = useAppSelector(state => state.posters.petCategories)
+   const itemCategories = useAppSelector(state => state.posters.itemCategories)
 
    const responseCode = useAppSelector(state => state.posters.responseCode)
    // const isAuthorizedState = useAppSelector(state => state.posters.isAuthorized)
@@ -135,6 +144,75 @@ export const PosterUpdatePage = () => {
       // dispatch(setAddress(''))
    }
 
+   const handleSearchChange = (event: any) => {
+      // setAddress(event.target?.value);
+      console.log('--------1----------')
+      // console.log('handleSearchChange', event.target?.value)
+      // console.log('handleSearchChange target', event.target)
+      // console.log('handleSearchChange event', event)
+      // console.log('handleSearchChange typeof event', typeof event)
+      const selectedItem = event.get('target').getResultsArray()[0];
+      // console.log("🚀 ~ file: newch.html:42 ~ selectedItem:", selectedItem)
+      const selectedAddress2 = selectedItem?.properties.get('text');
+      setSelectedTextAddress(selectedAddress2)
+      // console.log("🚀 ~ file: newch.html:44 ~ selectedAddress:", selectedAddress2)
+
+      // const coords = event.geometry?._coordinates;
+      // console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ coords:", coords)
+      if (selectedItem) {
+         const coords = selectedItem.geometry?._coordinates;
+         setSelectedAddressCoords(coords)
+         console.log("🚀 ~ handleSearchChange ~ coords:", coords)
+
+
+      }
+      console.log('--------1----------')
+   };
+
+   const selectItemCategoryInput = <FormControl fullWidth sx={{ pt: 12, pb: 6, }}>
+      <InputLabel variant="standard" htmlFor="objectCategory">
+         Категория объекта
+      </InputLabel>
+      <Select
+         // required
+         onChange={handleObjectCategoryChange}
+         value={objectCategory}
+         inputProps={{
+            name: 'objectCategory',
+            id: 'objectCategory',
+         }}
+      >
+         {/* <option value='потеряно'>потеряно</option> */}
+         {/* <MenuItem value={10}>Ten</MenuItem> */}
+         {itemCategories.map((category, i) => <MenuItem key={i} value={category}>{category}</MenuItem>)}
+         {/* <option value='потеряно'>потеряно</option>
+<option value='найдено'>найдено</option> */}
+      </Select>
+      {/* {menuItems} */}
+   </FormControl>
+
+   const selectPetCategoryInput = <FormControl fullWidth sx={{ pt: 12, pb: 6, }}>
+      <InputLabel variant="standard" htmlFor="objectCategory">
+         Категория объекта
+      </InputLabel>
+      <Select
+         // required
+         onChange={handleObjectCategoryChange}
+         value={objectCategory}
+         inputProps={{
+            name: 'objectCategory',
+            id: 'objectCategory',
+         }}
+      >
+         {/* <option value='потеряно'>потеряно</option> */}
+         {/* <MenuItem value={10}>Ten</MenuItem> */}
+         {petCategories.map((category, i) => <MenuItem key={i} value={category}>{category}</MenuItem>)}
+         {/* <option value='потеряно'>потеряно</option>
+<option value='найдено'>найдено</option> */}
+      </Select>
+      {/* {menuItems} */}
+   </FormControl>
+
    useEffect(() => {
       // if (isAuthorizedState || isAuthorized === 'true') {
       //    navigate('/')
@@ -149,7 +227,11 @@ export const PosterUpdatePage = () => {
       setDateOfAction(poster?.dateOfAction || '')
       // dispatch(setItemStatus('потеряно'))
       setBreed(poster?.breed)
-      setObjectCategory(poster?.ObjectCategories?.category || 'Другое')
+      if (isPet) {
+         setObjectCategory(poster?.ObjectCategories?.category || 'Прочие')
+      } else {
+         setObjectCategory(poster?.ObjectCategories?.category || 'Другое')
+      }
       setDescription(poster?.description)
       setPhone(poster?.phone)
       setAddress(poster?.address)
@@ -189,14 +271,18 @@ export const PosterUpdatePage = () => {
       // console.log("🚀 ~ file: PosterCreatePage.tsx:180 ~ handleFormSubmit ~ formattedDateOfAction:", new Date(formattedDateOfAction))
 
       // console.log("🚀 ~ file: PosterUpdatePage.tsx:194 ~ handleFormSubmit ~ id:", id)
+
       dispatch(updatePosterThunk({
          id: id,
          breed: breed,
          objectCategory: objectCategory,
          description: description,
          photo: selectedFile,
-         address: address,
-         phone: phone
+         // address: address,
+         address: selectedTextAddress,
+         phone: phone,
+         coord0: '' + selectedAddressCoords[0],
+         coord1: '' + selectedAddressCoords[1]
       }))
    }
 
@@ -271,7 +357,9 @@ export const PosterUpdatePage = () => {
                   <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Текущая категория (оставьте поле пустым, если не меняете категорию): </Typography>
                   <Typography variant="body1" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 } }}>{objectCategory}</Typography>
                </Box>
-               <FormControl fullWidth sx={{ pt: 12, pb: 6, }}>
+
+               {isPet ? selectPetCategoryInput : selectItemCategoryInput}
+               {/* <FormControl fullWidth sx={{ pt: 12, pb: 6, }}>
                   <InputLabel variant="standard" htmlFor="objectCategory">
                      Категория объекта
                   </InputLabel>
@@ -284,14 +372,10 @@ export const PosterUpdatePage = () => {
                         id: 'objectCategory',
                      }}
                   >
-                     {/* <option value='потеряно'>потеряно</option> */}
-                     {/* <MenuItem value={10}>Ten</MenuItem> */}
                      {posterCategories.map((category, i) => <MenuItem key={i} value={category}>{category}</MenuItem>)}
-                     {/* <option value='потеряно'>потеряно</option>
-         <option value='найдено'>найдено</option> */}
+                     
                   </Select>
-                  {/* {menuItems} */}
-               </FormControl>
+               </FormControl> */}
                <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Описание: </Typography>
                <TextField sx={{
                   pb: 6,
@@ -346,7 +430,7 @@ export const PosterUpdatePage = () => {
                   placeholder="375291285623"
                   label="Телефон" variant="outlined" value={phone} onChange={handlePhoneChange} /> */}
                <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Адрес: </Typography>
-               <TextField sx={{
+               {/* <TextField sx={{
 
                   pb: 14,
                   width: '100%',
@@ -358,10 +442,13 @@ export const PosterUpdatePage = () => {
                   inputProps={{ maxLength: maxLength175 }}
                   placeholder="г. Минск, ул. К. Цеткин, 54-80"
                   // label="Адрес" 
-                  variant="outlined" value={address} onChange={handleAddressChange} />
+                  variant="outlined" value={address} onChange={handleAddressChange} /> */}
 
                {/* <input type="file" onChange={handleChange} /> */}
                {/* {selectedFile && selectedFile.name} */}
+               Ранее назначенный адрес: {address}
+               <MapWithSearch handleSearchChange={handleSearchChange} selectedTextAddress={selectedTextAddress} />
+
                <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Выберите фото: </Typography>
                <input style={{ marginBottom: '56px' }} type="file" onChange={handlePhotoFileChange} />
 

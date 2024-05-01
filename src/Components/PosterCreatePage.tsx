@@ -10,7 +10,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import MapWithSearch from "./MapWithSearch"
+import { MapWithSearch } from "./MapWithSearch"
 import { YMaps, Map, SearchControl, Placemark } from '@pbe/react-yandex-maps';
 
 // type Props = {
@@ -29,10 +29,18 @@ export const PosterCreatePage = () => {
    const phone = useAppSelector(state => state.posters.phoneInput)
    const address = useAppSelector(state => state.posters.addressInput)
 
-   const posterCategories = useAppSelector(state => state.posters.posterCategories)
+   // const [petCategories, setPetCategories] = useState<string[]>([])
+   // const [itemCategories, setItemCategories] = useState<string[]>([])
+
+   // const posterCategories = useAppSelector(state => state.posters.posterCategories)
+   const petCategories = useAppSelector(state => state.posters.petCategories)
+   const itemCategories = useAppSelector(state => state.posters.itemCategories)
 
    const responseCode = useAppSelector(state => state.posters.responseCode)
    // const isAuthorizedState = useAppSelector(state => state.posters.isAuthorized)
+
+   const [showDateEmptyError, setShowDateEmptyError] = useState(false)
+   const [showAddressEmptyError, setShowAddressEmptyError] = useState(false)
 
    const maxLength60 = 60;
    const maxLength100 = 100;
@@ -52,6 +60,10 @@ export const PosterCreatePage = () => {
       dispatch(setIsPet(e.target.checked))
       if (!e.target.checked) {
          dispatch(setBreed(null))
+         dispatch(setObjectCategory('Другое'))
+      }
+      if (e.target.checked) {
+         dispatch(setObjectCategory('Прочие'))
       }
    }
    // ChangeEvent<HTMLSelectElement>
@@ -82,9 +94,9 @@ export const PosterCreatePage = () => {
    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       dispatch(setPhone(e.target.value))
    }
-   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      dispatch(setAddress(e.target.value))
-   }
+   // const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+   //    dispatch(setAddress(e.target.value))
+   // }
 
    const handleNavPosters = () => {
       navigate('/posters')
@@ -99,7 +111,7 @@ export const PosterCreatePage = () => {
       dispatch(setDateOfAction(null))
       dispatch(setPhotoFile(null))
       dispatch(setPhone(''))
-      dispatch(setAddress(''))
+      // dispatch(setAddress(''))
    }
 
    // ---YMaps
@@ -130,6 +142,7 @@ export const PosterCreatePage = () => {
       const selectedAddress2 = selectedItem?.properties.get('text');
       setSelectedTextAddress(selectedAddress2)
       console.log("🚀 ~ file: newch.html:44 ~ selectedAddress:", selectedAddress2)
+
       // const coords = event.geometry?._coordinates;
       // console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ coords:", coords)
       if (selectedItem) {
@@ -139,6 +152,8 @@ export const PosterCreatePage = () => {
          console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ typeof coords:", typeof coords)
          console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ typeof selectedAddressCoords:", typeof selectedAddressCoords)
          console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ selectedAddressCoords:", selectedAddressCoords)
+
+         setShowAddressEmptyError(false)
       }
       console.log('--------1----------')
    };
@@ -176,6 +191,9 @@ export const PosterCreatePage = () => {
          dispatch(setAddress(''))
       }
 
+      // const itemCategories = posterCategories.filter((category) => category.)
+      // setItemCategories()
+
    }, [responseCode])
 
    // const { register, handleSubmit, formState: { errors } } = useForm<PosterToCreate>();
@@ -202,7 +220,7 @@ export const PosterCreatePage = () => {
       {/* {menuItems} */}
    </FormControl>
 
-   const selectCategoryInput = <FormControl fullWidth sx={{ pt: 6, pb: 6, }}>
+   const selectItemCategoryInput = <FormControl fullWidth sx={{ pt: 6, pb: 6, }}>
       <InputLabel variant="standard" htmlFor="objectCategory">
          Категория объекта
       </InputLabel>
@@ -217,12 +235,34 @@ export const PosterCreatePage = () => {
       >
          {/* <option value='потеряно'>потеряно</option> */}
          {/* <MenuItem value={10}>Ten</MenuItem> */}
-         {posterCategories.map((category, i) => <MenuItem key={i} value={category}>{category}</MenuItem>)}
+         {itemCategories.map((category, i) => <MenuItem key={i} value={category}>{category}</MenuItem>)}
          {/* <option value='потеряно'>потеряно</option>
          <option value='найдено'>найдено</option> */}
       </Select>
       {/* {menuItems} */}
-   </FormControl >
+   </FormControl>
+
+   const selectPetCategoryInput = <FormControl fullWidth sx={{ pt: 6, pb: 6, }}>
+      <InputLabel variant="standard" htmlFor="objectCategory">
+         Категория объекта
+      </InputLabel>
+      <Select
+         // required
+         onChange={handleObjectCategoryChange}
+         value={objectCategory || 'Прочие'}
+         inputProps={{
+            name: 'objectCategory',
+            id: 'objectCategory',
+         }}
+      >
+         {/* <option value='потеряно'>потеряно</option> */}
+         {/* <MenuItem value={10}>Ten</MenuItem> */}
+         {petCategories.map((category, i) => <MenuItem key={i} value={category}>{category}</MenuItem>)}
+         {/* <option value='потеряно'>потеряно</option>
+      <option value='найдено'>найдено</option> */}
+      </Select>
+      {/* {menuItems} */}
+   </FormControl>
 
    const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
@@ -230,9 +270,27 @@ export const PosterCreatePage = () => {
       e.preventDefault()
       console.log('form submit')
       // dispatch()
+      console.log("🚀 ~ handleFormSubmit ~ dateOfAction:", dateOfAction)
+      console.log("🚀 ~ handleFormSubmit ~ dateOfAction:", !!dateOfAction)
+      console.log("🚀 ~ handleFormSubmit ~ selectedTextAddress:", selectedTextAddress)
+
+      if (!dateOfAction) {
+         setShowDateEmptyError(true)
+         return
+      }
       const formattedDateOfAction = dateOfAction ? dateOfAction.format('YYYY-MM-DD') : '';
-      // console.log("🚀 ~ file: PosterCreatePage.tsx:180 ~ handleFormSubmit ~ formattedDateOfAction:", formattedDateOfAction)
+      console.log("🚀 ~ file: PosterCreatePage.tsx:180 ~ handleFormSubmit ~ formattedDateOfAction:", formattedDateOfAction)
+      console.log("🚀 ~ file: PosterCreatePage.tsx:180 ~ handleFormSubmit ~ formattedDateOfAction === 'Invalid Date':", formattedDateOfAction === 'Invalid Date')
       // console.log("🚀 ~ file: PosterCreatePage.tsx:180 ~ handleFormSubmit ~ formattedDateOfAction:", new Date(formattedDateOfAction))
+      if (formattedDateOfAction === 'Invalid Date') {
+         setShowDateEmptyError(true)
+         return
+      }
+      if (!selectedTextAddress) {
+         setShowAddressEmptyError(true)
+         return
+      }
+
       dispatch(createPosterThunk({
          photo: selectedFile,
          // address: address,
@@ -317,7 +375,7 @@ export const PosterCreatePage = () => {
 
                   inputProps={{ maxLength: maxLength60 }}
                   label="Порода" variant="outlined" value={breed} onChange={handleBreedChange} />}
-               {selectCategoryInput}
+               {isPet ? selectPetCategoryInput : selectItemCategoryInput}
                <TextField sx={{
                   pb: 6,
                   width: '100%',
@@ -343,7 +401,10 @@ export const PosterCreatePage = () => {
                         label="Выберите дату события"
                         value={dayjs(dateOfAction)}
                         maxDate={dayjs()}
-                        onChange={(newValue) => dispatch(setDateOfAction(newValue))}
+                        onChange={(newValue) => {
+                           dispatch(setDateOfAction(newValue))
+                           setShowDateEmptyError(false)
+                        }}
                      />
                   </DemoContainer>
                </LocalizationProvider>
@@ -371,53 +432,59 @@ export const PosterCreatePage = () => {
                   placeholder="г. Минск, ул. К. Цеткин, 54-80"
                   label="Адрес" variant="outlined" value={address} onChange={handleAddressChange} /> */}
 
-               {/* <MapWithSearch /> */}
-               <YMaps query={{ apikey: '0a62e602-e671-4320-a847-0c31041bdb2e', suggest_apikey: 'c5bcdde0-db39-444b-831d-07b17c3af76e' }}>
+               {/* <YMaps query={{ apikey: '0a62e602-e671-4320-a847-0c31041bdb2e', suggest_apikey: 'c5bcdde0-db39-444b-831d-07b17c3af76e' }}>
                   <div>
                      Выбранный адрес: {selectedTextAddress}
-                     {/* Выбранный адрес: {typeof selectedAddressCoords[0]}
-                     Выбранный адрес: {'' + selectedAddressCoords[0]}
-                     Выбранный адрес: {+('' + selectedAddressCoords[0])} */}
                      <Map
                         defaultState={{ center: [53.90880299307702, 27.558588205078124], zoom: 9 }}
                         style={{ width: '100%', height: '400px' }}
-                     // instanceRef={(map: any) => map && map.controls.remove('searchControl')}
                      >
                         <SearchControl
                            options={{ float: 'right', provider: 'yandex#map' }}
                            // state={{ value: address }}
                            // onResultShow={onResultShow}
                            onChange={handleSearchChange}
-                        // onSearchSubmit={(ymaps: any, map: ymaps.Map) => {
-                        //    console.log('----------------------')
-                        //    console.log('onSearchSubmit')
-                        //    console.log('----------------------')
-                        //    console.log('setSelectedAddress - ', address)
-                        //    // setSelectedAddress(address);
-                        //    handleSearchSubmit(ymaps, map)
-                        // }
-                        // }
                         />
                      </Map>
                   </div>
-                  {/* {selectedAddress.length !== 0 && <div>
-            Выбранный адрес: {selectedAddress}
-            
-            <Map
-               defaultState={{ center: selectedAddress, zoom: 13 }}
-               style={{ width: '100%', height: '400px' }}
-            >
-               <Placemark geometry={selectedAddress} />               
-            </Map>
-         </div>} */}
-               </YMaps>
+               </YMaps> */}
+
+               <MapWithSearch handleSearchChange={handleSearchChange} selectedTextAddress={selectedTextAddress} />
 
                {/* <input type="file" onChange={handleChange} /> */}
                {/* {selectedFile && selectedFile.name} */}
                <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Выберите фото: </Typography>
                <input style={{ marginBottom: '56px' }} type="file" onChange={handlePhotoFileChange} />
 
-               {selectedAddressCoords ? <Button type="submit" variant='contained' sx={{
+               {showDateEmptyError && <Typography variant="body1" component='p' sx={{
+                  // pt: { xs: 6, md: 4 }, 
+                  pb: { xs: 9, md: 2 },
+                  pr: { xs: 1, md: 2 },
+                  color: 'red'
+               }}>Выберите дату события</Typography>}
+
+               {showAddressEmptyError && <Typography variant="body1" component='p' sx={{
+                  // pt: { xs: 6, md: 4 }, 
+                  pb: { xs: 9, md: 2 },
+                  pr: { xs: 1, md: 2 },
+                  color: 'red'
+               }}>Выберите адрес события</Typography>}
+
+               <Button type="submit" variant='contained' sx={{
+                  width: '100%',
+                  paddingY: 3,
+                  bgcolor: 'system.main',
+                  color: '#fff',
+                  textTransform: 'uppercase',
+                  '&:hover': {
+                     bgcolor: 'system.dark'
+                  }
+               }
+               }
+
+               // onClick={handleReg}
+               >Отправить</Button>
+               {/* {(selectedTextAddress || !!dateOfAction) ? <Button type="submit" variant='contained' sx={{
                   width: '100%',
                   paddingY: 3,
                   bgcolor: 'system.main',
@@ -443,7 +510,7 @@ export const PosterCreatePage = () => {
                }
                   disabled
                // onClick={handleReg}
-               >Отправить</Button>}
+               >Отправить</Button>} */}
 
                <Button variant='contained' sx={{
                   width: '100%',

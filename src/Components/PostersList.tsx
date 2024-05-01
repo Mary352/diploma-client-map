@@ -35,7 +35,7 @@ export const PostersList = (props: Props) => {
       >
          {/* {books.map((book: OneBookShort) => <BookShort book={book}></BookShort>)} */}
          {/* {posters.map((poster) => <p>{poster.item}</p>)} */}
-         {posters.map((poster) => <PosterCard poster={poster} />)}
+         {posters.map((poster) => <PosterCard poster={poster} key={poster.id} />)}
       </Box>
    );
 }

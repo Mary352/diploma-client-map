@@ -15,94 +15,38 @@ import { ErrorPage } from './ErrorPage';
 import { LoadingInfo } from './LoadingInfo';
 import { getUsersFilteredThunk, getUsersThunk } from '../store/userSlice';
 import { useNavigate } from 'react-router-dom';
-import { YEARS_TO_SAVE_USERS } from '../types/commonVars';
+import { Comment } from "./Comment";
+import { getAllCommentsThunk } from '../store/commentSlice';
 
-export const UsersList = () => {
+export const SuspiciousCommentsList = () => {
 
-   const users = useAppSelector(state => state.user.users)
-   const status = useAppSelector(state => state.user.status)
-   const resCode = useAppSelector(state => state.user.responseCode)
-   const errMsg = useAppSelector(state => state.user.errorMsg)
+   const commentsArr = useAppSelector(state => state.comments.comments)
+   const status = useAppSelector(state => state.comments.status)
+   const resCode = useAppSelector(state => state.comments.responseCode)
+   const errMsg = useAppSelector(state => state.comments.errorMsg)
+
+
 
    const isNotAdmin = localStorage.getItem('isNotAdmin');
 
-   const [userRole, setUserRole] = useState<string>('any_role')
-
+   // const [userRole, setUserRole] = useState<string>('any_role')
 
    const dispatch = useAppDispatch()
    const navigate = useNavigate()
 
-   const handleUserRoleChange = (event: SelectChangeEvent<string>) => {
-      setUserRole(event.target.value as string)
-   }
-
-   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      console.log('form submit')
-      dispatch(getUsersFilteredThunk(userRole))
-   }
-
-   function formatDate(dt: Date): string {
-      const date = new Date(dt);
-      let day: number | string = date.getDate();
-      if (day < 10) day = '0' + day;
-
-      let month: number | string = date.getMonth() + 1;
-      if (month < 10) month = '0' + month;
-
-      const year: number = date.getFullYear();
-
-      const formattedDate: string = `${day}.${month}.${year}`;
-      // console.log(formattedDate);
-
-      return formattedDate;
-   }
-
-   function formatDateTime(dt: Date): string {
-      const date = new Date(dt);
-      let hours: number | string = date.getHours();
-      if (hours < 10) hours = '0' + hours;
-
-      let minutes: number | string = date.getMinutes();
-      if (minutes < 10) minutes = '0' + minutes;
-
-      // const year: number = date.getFullYear();
-      const formattedDate = formatDate(date)
-
-      const formattedDateTime: string = formattedDate + ` ${hours}:${minutes}`;
-      // console.log(formattedDateTime);
-
-      return formattedDateTime;
-   }
-
-   // function addFiveYears(dt: Date) {
-   //    let date = new Date(dt);
-   //    date.setFullYear(date.getFullYear() + YEARS_TO_SAVE_USERS);
-
-   //    return date;
+   // const handleUserRoleChange = (event: SelectChangeEvent<string>) => {
+   //    setUserRole(event.target.value as string)
    // }
 
-   function isActiveUser(dt: Date) {
-
-      let dateLastActivity = new Date(dt);
-      console.log("🚀 ~ isActiveUser ~ dateLastActivity:", dateLastActivity)
-      let dateToday = new Date(Date.now());
-      console.log("🚀 ~ isActiveUser ~ dateToday:", dateToday)
-      let dateLastActivityPlusSaveYears = new Date(dt);
-
-      dateLastActivityPlusSaveYears.setFullYear(dateLastActivity.getFullYear() + YEARS_TO_SAVE_USERS);
-      console.log("🚀 ~ isActiveUser ~ dateLastActivityPlusSaveYears:", dateLastActivityPlusSaveYears)
-
-      if (dateLastActivityPlusSaveYears > dateToday) {
-         return true
-      } else {
-         return false
-      }
-   }
+   // const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+   //    e.preventDefault()
+   //    console.log('form submit')
+   //    dispatch(getUsersFilteredThunk(userRole))
+   // }
 
    useEffect(() => {
 
-      dispatch(getUsersThunk())
+      dispatch(getAllCommentsThunk())
 
    }, [])
 
@@ -137,10 +81,10 @@ export const UsersList = () => {
             textTransform: 'uppercase'
          }}
       >
-         Пользователи
+         Подозрительные комментарии
       </Typography>
-
-      <Box sx={{
+      {commentsArr.map((comment) => comment.complaintsCount > 0 && <Comment page='comments' comment={comment} key={comment.id} />)}
+      {/* <Box sx={{
          paddingX: { xs: 6, md: 6 },
          paddingY: { xs: 6, md: 6 },
          bgcolor: 'tertiary.light',
@@ -213,7 +157,7 @@ export const UsersList = () => {
             <ListItemText
                primary={user.name}
                secondary={
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <React.Fragment>
                      <Typography
                         sx={{ display: 'inline' }}
                         component="span"
@@ -222,23 +166,12 @@ export const UsersList = () => {
                      >
                         Роль: {user.role}
                      </Typography>
-                     <Typography
-                        sx={{ display: 'inline' }}
-                        component="span"
-                        variant="body1"
-                        // color="red"
-                        // color="text.secondary"
-                        color={isActiveUser(user.lastActivityTime) ? 'text.secondary' : 'red'}
-                     >
-                        Последняя активность: {formatDateTime(user.lastActivityTime)}
-                     </Typography>
-                  </Box>
+
+                  </React.Fragment>
                }
             />
          </ListItemButton>)}
-
-         {/* <Divider variant="fullWidth" component="li" />          */}
-      </List>
+      </List> */}
    </Box >
    );
 }

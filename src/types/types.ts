@@ -124,7 +124,9 @@ export type PosterToUpdate = {
    "description"?: string,
    "photo": File | null,
    "address"?: string,
-   "phone"?: string
+   "phone"?: string,
+   coord0?: string,
+   coord1?: string,
 }
 
 export type UserToUpdate = {
@@ -159,6 +161,20 @@ export type PosterServer = {
       "statusName": string
    } | null
 }
+export type CommentServer = {
+   id: number;
+   posterId: number | null;
+   userId: number | null;
+   comment: string;
+   creationDate: string;
+   readByPosterAuthor: boolean;
+   approved: boolean;
+   changedByAuthor: boolean;
+   complaintsCount: number;
+   Users: {
+      name: string;
+   } | null;
+}
 
 export type User = {
    "id": number,
@@ -167,7 +183,10 @@ export type User = {
    password: string,
    phone: string,
    address: string,
-   "role": string
+   "role": string,
+   coord0: string,
+   coord1: string,
+   lastActivityTime: Date
 }
 
 export type UserForReg = {
@@ -176,6 +195,8 @@ export type UserForReg = {
    password: string,
    phone: string,
    address: string,
+   coord0: string,
+   coord1: string,
 }
 
 // export type Token = {
@@ -206,12 +227,15 @@ export type PosterState = {
    photoFileInput: File | null,
    addressInput: string,
    phoneInput: string,
-   posterCategories: string[],
+   // posterCategories: string[],
+   petCategories: string[],
+   itemCategories: string[],
    posterStatuses: string[],
    posterDeleteReasons: string[],
    rejectReason: string | undefined,
    deleteReason: string | undefined,
    posterAuthor: User | null,
+   notificationsInfo: NotificationsInfo[],
    // bookDetailed: OneBookDetailed,
    // searchInputValue: string,
    // booksFoundByTitle: OneBookShort[],
@@ -240,6 +264,24 @@ export type AccountState = {
    // currentUser: User,
 }
 
+export type Comment = {
+   id: number,
+   posterId: number,
+   userId: number,
+   comment: string,
+   creationDate: string, // !
+   readByPosterAuthor: boolean,
+   approved: boolean,
+   changedByAuthor: boolean,
+   complaintsCount: number
+}
+
+export type CommentState = {
+   comments: CommentServer[],
+   responseCode: number,
+   errorMsg: string,
+   status: string
+}
 export type UserSliceState = {
    users: User[],
    user: User | null,
@@ -287,9 +329,17 @@ export type InnerRegResponse = {
    // accessToken: string,
    err: string;
 }
+export type ServerCategoriesResponse = {
+   message: { petCategories: string[], itemCategories: string[] },
+   accountInfo: {
+      isAuth: boolean,
+      isNotAdmin: boolean,
+   },
+   error?: string
+}
 export type InnerCategoriesResponse = {
    resCode: number,
-   categories: string[],
+   categories: { petCategories: string[], itemCategories: string[] },
    err: string,
 }
 export type InnerStatusesResponse = {
@@ -317,6 +367,12 @@ export type InnerPostersResponse = {
    posters: PosterServer[],
    err: string,
 }
+
+export type InnerCommentsResponse = {
+   resCode: number,
+   comments: CommentServer[],
+   err: string,
+}
 export type serverPosterResponse = {
    error?: string,
    rejectReason?: string,
@@ -326,6 +382,23 @@ export type serverPosterResponse = {
       "isAuth": boolean,
       "isNotAdmin": boolean
    }
+}
+export type NotificationsInfo = {
+   "posterId": number,
+   "posterItem": string
+}
+export type serverNotificationsResponse = {
+   error?: string,
+   message?: NotificationsInfo[],
+   "accountInfo": {
+      "isAuth": boolean,
+      "isNotAdmin": boolean
+   }
+}
+export type InnerNotificationsResponse = {
+   resCode: number;
+   notificationsInfo: NotificationsInfo[];
+   err: string;
 }
 export type InnerOnePosterResponse = {
    resCode: number;
@@ -392,7 +465,6 @@ export type InnerCreatePosterResponse = {
 }
 
 export type serverCreatePosterResponse = {
-
    error?: string,
    message?: string,
    accountInfo: {
@@ -401,7 +473,42 @@ export type serverCreatePosterResponse = {
    }
 }
 
+export type serverResponse = {
+   error?: string,
+   message?: string,
+   accountInfo: {
+      isAuth: boolean,
+      isNotAdmin: boolean,
+   }
+}
 
+export type serverCommentsResponse = {
+   error?: string,
+   message?: CommentServer[],
+   accountInfo: {
+      isAuth: boolean,
+      isNotAdmin: boolean,
+   }
+}
+
+export type InnerResponse = {
+   resCode: number,
+   message: string,
+   isAuth: boolean,
+   isNotAdmin: boolean,
+   // accessToken: string,
+   err: string;
+}
+
+export type CommentToAdd = {
+   posterId: number,
+   comment: string
+}
+
+export type CommentToUpd = {
+   commentId: number,
+   text: string
+}
 
 // Component Props
 export type PosterCardProps = {

@@ -9,6 +9,7 @@ type Props = {
 export const ErrorPage = (props?: Props) => {
 
    const isNotAdmin = localStorage.getItem('isNotAdmin');
+   const isAuth = localStorage.getItem('isAuth');
 
    return (
       <Box sx={{
@@ -32,6 +33,9 @@ export const ErrorPage = (props?: Props) => {
             <Typography variant="body1" component="p" sx={{ pr: 4 }} >
                Вернуться на <Link to='/'>Главную</Link>
             </Typography>
+            {isAuth === 'false' && <Typography variant="body1" component="p" sx={{ pr: 4 }}> или <Link to='/signin'>Войти</Link>
+            </Typography>}
+
          </Box>
       </Box>)
 }

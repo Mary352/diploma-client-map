@@ -1,7 +1,7 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { RootState } from './store'
-import { FilterForPosters, InnerCategoriesResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerStatusesResponse, OneBookDetailed, OneBookShort, PosterServer, PosterState, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, SearchBooksResponse, SearchBooksThunkParams } from '../types/types'
-import { createPoster, getItemCategories, getPosterById, getPosterDeleteReasons, getPosterStatuses, getPosters, getPostersFiltered, getUserPosters, updatePoster } from '../server/getPosters'
+import { FilterForPosters, InnerCategoriesResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerNotificationsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerStatusesResponse, OneBookDetailed, OneBookShort, PosterServer, PosterState, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, SearchBooksResponse, SearchBooksThunkParams } from '../types/types'
+import { createPoster, getItemCategories, getNotifications, getPosterById, getPosterDeleteReasons, getPosterStatuses, getPosters, getPostersFiltered, getUserPosters, setCommentsRead, updatePoster } from '../server/getPosters'
 import dayjs from 'dayjs'
 
 const initialState: PosterState = {
@@ -20,12 +20,16 @@ const initialState: PosterState = {
    photoFileInput: null,
    addressInput: '',
    phoneInput: '',
-   posterCategories: [],
+   // posterCategories: [],
+   petCategories: [],
+   itemCategories: [],
    posterStatuses: [],
    posterDeleteReasons: [],
    rejectReason: '',
    deleteReason: '',
    posterAuthor: null,
+   // notificationsInfo: NotificationsInfo[],
+   notificationsInfo: [],
    // bookDetailed: {
    //    error: '',
    //    title: '',
@@ -104,6 +108,16 @@ export const updatePosterThunk = createAsyncThunk('posters/updatePosterThunk', a
    return result
 })
 
+export const getNotificationsThunk = createAsyncThunk('posters/getNotificationsThunk', async () => {
+   const serverNotificationsInfo: InnerNotificationsResponse = await getNotifications();
+   return serverNotificationsInfo
+})
+
+export const setCommentsReadThunk = createAsyncThunk('posters/setCommentsReadThunk', async (posterId: number) => {
+   const serverNotificationsInfo: InnerNotificationsResponse = await setCommentsRead(posterId);
+   return serverNotificationsInfo
+})
+
 export const postersSlice = createSlice({
    name: 'posters',
    initialState,
@@ -140,6 +154,9 @@ export const postersSlice = createSlice({
       },
       setAddress: (state, action: PayloadAction<string>) => {
          return { ...state, addressInput: action.payload }
+      },
+      setPostersUser: (state, action: PayloadAction<PosterServer[]>) => {
+         return { ...state, postersUser: action.payload }
       },
       // setSearchInput: (state, action: PayloadAction<string>) => {
       //    return { ...state, searchInputValue: action.payload }
@@ -205,7 +222,9 @@ export const postersSlice = createSlice({
          })
          .addCase(getItemCategoriesThunk.fulfilled, (state, action: PayloadAction<InnerCategoriesResponse>) => {
             if (action.payload.resCode === 200) {
-               return { ...state, posterCategories: action.payload.categories, responseCode: 200, status: 'fulfilled' }
+               const { categories } = action.payload
+               return { ...state, itemCategories: categories.itemCategories, petCategories: categories.petCategories, responseCode: 200, status: 'fulfilled' }
+               // return { ...state, posterCategories: action.payload.categories, responseCode: 200, status: 'fulfilled' }
             }
             else {
                return { ...state, errorMsg: action.payload.err, responseCode: action.payload.resCode, status: 'fulfilled' }
@@ -293,6 +312,42 @@ export const postersSlice = createSlice({
          .addCase(getPosterStatusesThunk.rejected, (state) => {
             return { ...state, status: 'rejected' }
          })
+         .addCase(getNotificationsThunk.pending, (state) => {
+            return { ...state, status: 'loading' }
+         })
+         .addCase(getNotificationsThunk.fulfilled, (state, action: PayloadAction<InnerNotificationsResponse>) => {
+            if (action.payload.resCode === 200) {
+               const { notificationsInfo, resCode } = action.payload;
+               return { ...state, notificationsInfo: notificationsInfo, responseCode: resCode, status: 'fulfilled' }
+            }
+            else {
+               const { err, resCode } = action.payload;
+               return { ...state, errorMsg: err, responseCode: resCode, status: 'fulfilled' }
+            }
+
+            // return { ...state, posters: action.payload.res, status: 'fulfilled' }
+         })
+         .addCase(getNotificationsThunk.rejected, (state) => {
+            return { ...state, status: 'rejected' }
+         })
+         .addCase(setCommentsReadThunk.pending, (state) => {
+            return { ...state, status: 'loading' }
+         })
+         .addCase(setCommentsReadThunk.fulfilled, (state, action: PayloadAction<InnerNotificationsResponse>) => {
+            if (action.payload.resCode === 200) {
+               const { notificationsInfo, resCode } = action.payload;
+               return { ...state, notificationsInfo: notificationsInfo, responseCode: resCode, status: 'fulfilled' }
+            }
+            else {
+               const { err, resCode } = action.payload;
+               return { ...state, errorMsg: err, responseCode: resCode, status: 'fulfilled' }
+            }
+
+            // return { ...state, posters: action.payload.res, status: 'fulfilled' }
+         })
+         .addCase(setCommentsReadThunk.rejected, (state) => {
+            return { ...state, status: 'rejected' }
+         })
       // .addCase(searchBooksThunk.pending, (state) => {
       //    return { ...state, status: 'loading' }
       // })
@@ -313,6 +368,6 @@ export const postersSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setResponseCode, setItem, setBreed, setIsPet, setObjectCategory, setDescription, setItemStatus, setDateOfAction, setPhotoFile, setPhone, setAddress } = postersSlice.actions
+export const { setResponseCode, setItem, setBreed, setIsPet, setObjectCategory, setDescription, setItemStatus, setDateOfAction, setPhotoFile, setPhone, setAddress, setPostersUser } = postersSlice.actions
 
 export const postersReducer = postersSlice.reducer

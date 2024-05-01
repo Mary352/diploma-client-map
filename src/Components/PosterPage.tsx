@@ -5,15 +5,19 @@ import { Box, Button, Card, CardContent, CardMedia, Checkbox, FormControl, FormC
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import { LoadingInfo } from "./LoadingInfo";
+import { MapWithPlacemark } from "./MapWithPlacemark";
 import { ErrorMessageComp } from "./ErrorMessageComp";
 import { DOMAIN, UPLOAD, posterStatuses } from "../types/commonVars";
 import { PosterNotFound } from "./PosterNotFound";
-import { getPosterByIdThunk, getPosterDeleteReasonsThunk } from "../store/posterSlice";
+import { getPosterByIdThunk, getPosterDeleteReasonsThunk, setCommentsReadThunk } from "../store/posterSlice";
 import { deletePosterByUser, publishPoster, rejectPoster } from "../server/getPosters";
 import { ErrorPage } from "./ErrorPage";
+import { Comment } from "./Comment";
 import { error } from "console";
 import { getOneUserThunk } from "../store/userSlice";
 import { YMaps, Map, SearchControl, Placemark } from '@pbe/react-yandex-maps';
+import { CommentAdd } from "./CommentAdd";
+import { getCommentsForPosterThunk } from "../store/commentSlice";
 
 export const PosterPage = () => {
    // const { isbn13 } = useParams();
@@ -41,9 +45,18 @@ export const PosterPage = () => {
    const rejectReasonStore = useAppSelector(state => state.posters.rejectReason)
    const deleteReasonStore = useAppSelector(state => state.posters.deleteReason)
    const posterAuthor = useAppSelector(state => state.posters.posterAuthor)
+   // needToGetCommentsOnly
+
+
+   const commentsArr = useAppSelector((state) => state.comments.comments)
+   const responseCodeComments = useAppSelector(state => state.comments.responseCode)
+   // const needToGetCommentsOnly = useAppSelector(state => state.comments.needToGetCommentsOnly)
 
    const isNotAdmin = localStorage.getItem('isNotAdmin');
+   const isAuth = localStorage.getItem('isAuth');
    const currentUserId = localStorage.getItem('userId');
+
+   const [needToGetCommentsOnly, setNeedToGetCommentsOnly] = useState(false);
 
 
    const dispatch = useAppDispatch()
@@ -72,16 +85,49 @@ export const PosterPage = () => {
    };
 
    useEffect(() => {
+
+      console.log("🚀 ~ useEffect ~ responseCodeComments:", responseCodeComments)
       dispatch(getPosterDeleteReasonsThunk())
       id && dispatch(getPosterByIdThunk(id))
-      // isbn13 && dispatch(getBookByISBNThunk(isbn13))
+      id && dispatch(getCommentsForPosterThunk(id))
+      const idNum = parseInt('' + id)
+      console.log("🚀🚀🚀 ~ useEffect ~ idNum:", idNum)
+      console.log("🚀🚀🚀 ~ useEffect ~ isNaN(idNum):", isNaN(idNum))
+      !isNaN(idNum) && dispatch(setCommentsReadThunk(idNum))
+      // // ограничение полной отрисовки страницы при добавлении нового комментария
+      // // перерендер только блоков с комментариями
+      // if (needToGetCommentsOnly) {
+      //    id && dispatch(getCommentsForPosterThunk(id))
+      //    // setNeedToGetCommentsOnly(false)
+      // }
+      // else {
+      //    // if (responseCodeComments !== 200) {
+      //    dispatch(getPosterDeleteReasonsThunk())
+      //    id && dispatch(getPosterByIdThunk(id))
+      //    id && dispatch(getCommentsForPosterThunk(id))
+      //    // }
 
-      // console.log('----')
-      // console.log(poster?.userId)
-      // console.log('----')
-      // isNotAdmin === 'false' && dispatch(getOneUserThunk(poster?.userId))
+      // }
 
-   }, [id])
+      // // dispatch(getPosterDeleteReasonsThunk())
+      // // id && dispatch(getPosterByIdThunk(id))
+      // // id && dispatch(getCommentsForPosterThunk(id))
+
+      // // ограничение полной отрисовки страницы при добавлении нового комментария
+      // // перерендер только блоков с комментариями
+      // if (responseCodeComments === 201) {
+      //    id && dispatch(getCommentsForPosterThunk(id))
+      // }
+      // else {
+
+      //    // if (responseCodeComments !== 200) {
+      //    dispatch(getPosterDeleteReasonsThunk())
+      //    id && dispatch(getPosterByIdThunk(id))
+      //    id && dispatch(getCommentsForPosterThunk(id))
+      //    // }
+      // }
+
+   }, [id, needToGetCommentsOnly])
    // }, [id, posterStatus])
 
    const handleChange = (e: React.SyntheticEvent, newVal: string) => {
@@ -135,6 +181,11 @@ export const PosterPage = () => {
          .then(data => { id && dispatch(getPosterByIdThunk(id)); })
          .catch(err => console.log(err))
    }
+
+   const handleSendingComment = () => {
+      id && dispatch(getCommentsForPosterThunk(id))
+   }
+
    const handleReject = () => {
       // ! Отклонить объявление
    }
@@ -179,6 +230,8 @@ export const PosterPage = () => {
             }}>
                <Card
                   sx={{
+                     // display: 'flex',
+                     // justifyContent: 'center',
                      bgcolor: 'tertiary2.light',
                      width: { xs: '100%', xl: '440px' },
                      marginBottom: { xs: 9, md: 12, xl: 0 }
@@ -188,7 +241,12 @@ export const PosterPage = () => {
                      component="img"
                      image={DOMAIN + UPLOAD + '/' + poster.photoLink}
                      alt="poster"
-                     sx={{ width: '80%', marginX: 'auto', marginY: '0' }}
+                     sx={{
+                        // width: '80%',
+                        maxHeight: '450px',
+                        marginX: 'auto',
+                        marginY: '0'
+                     }}
                   />
                </Card>
                <Card sx={{ width: { xs: '100%', xl: '450px' } }}>
@@ -299,15 +357,15 @@ export const PosterPage = () => {
                               {posterAuthor?.email}
                            </Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', pb: 4 }}>
-                           {/* sx={{ color: 'system.light' }} */}
+                        {/* <Box sx={{ display: 'flex', pb: 4 }}>
+                           //sx={{ color: 'system.light' }} 
                            <Typography variant="body1" component="p" sx={{ pr: 4 }} >
                               Телефон:
                            </Typography>
                            <Typography maxWidth='200px' variant="body1" component="p" >
                               {posterAuthor?.phone}
                            </Typography>
-                        </Box>
+                        </Box> */}
 
                      </>}
 
@@ -504,16 +562,18 @@ export const PosterPage = () => {
                   <TabList aria-label="Tabs for book props" onChange={handleChange} textColor="secondary" indicatorColor="secondary" >
                      <Tab sx={{ color: 'system.light', fontSize: '16px', textTransform: 'capitalize' }} label='Описание' value='1' />
                      <Tab sx={{ color: 'system.light', fontSize: '16px', textTransform: 'capitalize' }} label='Адрес' value='2' />
+                     <Tab sx={{ color: 'system.light', fontSize: '16px', textTransform: 'capitalize' }} label='Комментарии' value='3' />
                      {/* <Tab label='Reviews' value='3' /> */}
                   </TabList>
                </Box>
                <TabPanel value='1' sx={{ pt: { xs: 9, md: 12 }, fontSize: '16px', mb: 20 }}>{poster.description}</TabPanel>
                <TabPanel value='2' sx={{ pt: { xs: 9, md: 12 }, fontSize: '16px' }}>
-                  <YMaps query={{ apikey: '0a62e602-e671-4320-a847-0c31041bdb2e', suggest_apikey: 'c5bcdde0-db39-444b-831d-07b17c3af76e' }}>
+                  <MapWithPlacemark address={poster.address} coord0={poster.coord0} coord1={poster.coord1} />
+
+                  {/* <YMaps query={{ apikey: '0a62e602-e671-4320-a847-0c31041bdb2e', suggest_apikey: 'c5bcdde0-db39-444b-831d-07b17c3af76e' }}>
 
                      <div>
                         Выбранный адрес: {poster.address}
-                        Координаты: {+poster.coord0}
 
                         <Map
                            defaultState={{ center: [+poster.coord0, +poster.coord1], zoom: 13 }}
@@ -524,7 +584,70 @@ export const PosterPage = () => {
 
 
                      </div>
-                  </YMaps>
+                  </YMaps> */}
+               </TabPanel>
+               <TabPanel value='3' sx={{ pt: { xs: 9, md: 12 }, fontSize: '16px', mb: 20 }}>
+                  {(isAuth === 'true' && isNotAdmin === 'true') ? <CommentAdd posterId={poster.id} handleSendingNewComment={handleSendingComment} /> : ''}
+                  {/* {(isAuth === 'true' && isNotAdmin === 'true') ?? 'true'} */}
+                  {/* <CommentAdd posterId={poster.id} /> */}
+                  {/* <Box sx={{ display: 'flex', width: '100%', flexWrap: 'wrap', mb: 5 }}>
+                     <TextField sx={{
+                        width: { xs: '100%', md: '80%' },
+                        bgcolor: '#fff',
+                        marginBottom: { xs: 6, md: 0 }
+                     }}
+                        label="Ваш комментарий" variant="outlined"
+                     // value={email} 
+                     // onChange={handleEmailChange} 
+                     />
+
+                     <Button variant='contained' sx={{
+                        width: { xs: '100%', md: '20%' },
+                        paddingY: { xs: 4, md: 'inherit' },
+                        bgcolor: 'system.main',
+                        color: '#fff',
+                        textTransform: 'uppercase',
+                        '&:hover': {
+                           bgcolor: 'system.dark'
+                        }
+                     }}
+                     // onClick={handleSubscribe}
+                     >Отправить</Button>
+                  </Box> */}
+
+                  {/* {commentsArr.map((comment) => <Comment comment={comment} key={comment.id} />)} */}
+                  {commentsArr.map((comment) => comment.complaintsCount <= 5 && <Comment page="posters" comment={comment} key={comment.id} />)}
+
+                  {/* <Comment comment={commentsArr[1]} id={100000} userId={100000} username="user2" datetime="08/04/2024 18:48" text="comment body 2" /> */}
+                  {/* <Box sx={{
+                     p: 4,
+                     pt: 2,
+                     border: 1,
+                     borderStyle: 'solid',
+                     borderColor: 'system.light',
+                     borderRadius: 3,
+                     boxShadow: '3px 3px 4px 0px #DDDDDD',
+                  }}>
+                     <Typography variant="body1" component="p"
+                        sx={{ fontWeight: 700 }}
+                     >
+                        user
+                     </Typography>
+                     <Typography variant="body1" component="p"
+                        sx={{
+                           fontSize: 14,
+                           color: "#47a",
+                        }}
+                     >
+                        03/04/2024 18:48
+                     </Typography>
+                     <Typography
+                        variant="body1" component="p"
+                        sx={{ mt: 2 }}
+                     >
+                        comment body
+                     </Typography>
+                  </Box> */}
                </TabPanel>
 
             </TabContext>

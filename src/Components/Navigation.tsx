@@ -12,6 +12,7 @@ import { PostersUserList } from "./PostersUserList";
 import { ErrorPage } from "./ErrorPage";
 import { UsersList } from "./UsersList";
 import { PostersListPage } from "./PostersListPage";
+import { SuspiciousCommentsList } from "./SuspiciousCommentsList";
 
 export const Navigation = () => {
    return <Box sx={{ boxSizing: 'border-box' }}>
@@ -29,6 +30,7 @@ export const Navigation = () => {
          </Route>
          <Route path="/signin" element={<SignIn />} />
          <Route path="/register" element={<Register />} />
+         <Route path="/comments" element={<SuspiciousCommentsList />} />
          <Route path="/users">
             <Route index element={<UsersList />} />
             <Route path=":id" element={<Account />} />

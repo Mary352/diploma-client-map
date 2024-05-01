@@ -1,5 +1,5 @@
 import { DOMAIN, posterStatuses } from "../types/commonVars";
-import { FilterForPosters, InnerCategoriesResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerStatusesResponse, PosterServer, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, User, serverCreatePosterResponse, serverPosterResponse, serverPostersResponse, } from "../types/types";
+import { FilterForPosters, InnerCategoriesResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerNotificationsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerStatusesResponse, PosterServer, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, ServerCategoriesResponse, User, serverCreatePosterResponse, serverNotificationsResponse, serverPosterResponse, serverPostersResponse, } from "../types/types";
 import { getOneUser } from "./getUsers";
 
 
@@ -14,6 +14,9 @@ const POSTERS_CREATE = "/posters/create";
 const POSTERS_UPDATE = "/posters/upd";
 const POSTERS_DELETE = "/posters/del";
 const POSTERS_DECIDE = "/posters/decide";
+const POSTERS_NOTIFICATIONS = "/posters/getnotifications";
+
+const COMMENTS_SET_READ = "/comments/setcommentsread";
 // const SEARCH = "/search";
 
 export const getPosters = async () => {
@@ -214,7 +217,7 @@ export const getItemCategories = async () => {
       credentials: 'include',
    });
 
-   const posters = await response.json();
+   const posters: ServerCategoriesResponse = await response.json();
    console.log("🚀 ~ file: getPosters.ts:14 ~ getPosters ~ posters:", posters)
    // console.log("🚀 ~ file: getBooks.ts:56 ~ getPosters ~ posters:", posters.message)
    if (response.status === 200) {
@@ -222,7 +225,7 @@ export const getItemCategories = async () => {
 
       const obj: InnerCategoriesResponse = {
          resCode: response.status,
-         categories: posters.message || [],
+         categories: posters.message || {},
          err: ''
       };
 
@@ -231,7 +234,7 @@ export const getItemCategories = async () => {
    else {
       const obj: InnerCategoriesResponse = {
          resCode: response.status,
-         categories: [],
+         categories: { petCategories: [], itemCategories: [] },
          err: posters.error || 'Произошла ошибка. Попробуйте позже',
       };
 
@@ -548,6 +551,8 @@ export const updatePoster = async (poster: PosterToUpdate) => {
    // formData.append('dateOfAction', poster.dateOfAction)
    poster.address && formData.append('address', poster.address)
    poster.phone && formData.append('phone', poster.phone)
+   poster.coord0 && poster.coord0 !== 'undefined' && formData.append('coord0', poster.coord0)
+   poster.coord1 && poster.coord1 !== 'undefined' && formData.append('coord1', poster.coord1)
    if (poster.photo !== null) {
       // const i = poster.photo[0];
       formData.append('photo', poster.photo)
@@ -699,6 +704,75 @@ export const deletePosterByAdmin = async (id: string | undefined) => {
    }
    // return result;
 }
+
+export const getNotifications = async () => {
+   const url = new URL(DOMAIN + POSTERS_NOTIFICATIONS);
+   const response = await fetch(url, {
+      credentials: 'include',
+   });
+   const posters: serverNotificationsResponse = await response.json();
+   console.log("🚀 ~ getNotifications ~ posters:", posters)
+
+   localStorage.setItem('isAuth', `${posters.accountInfo.isAuth}`)
+   localStorage.setItem('isNotAdmin', `${posters.accountInfo.isNotAdmin}`)
+
+   if (response.status === 200) {
+      console.log("🚀 ~ file: getPosters.ts:13 ~ getPosters ~ response.status:", response.status)
+
+      const obj: InnerNotificationsResponse = {
+         resCode: response.status,
+         notificationsInfo: posters.message || [],
+         err: ''
+      };
+
+      return obj
+   }
+   else {
+      const obj: InnerNotificationsResponse = {
+         resCode: response.status,
+         notificationsInfo: [],
+         err: posters.error || 'Произошла ошибка. Попробуйте позже',
+      };
+
+      return obj;
+   }
+};
+
+export const setCommentsRead = async (posterId: number) => {
+   const url = new URL(DOMAIN + COMMENTS_SET_READ);
+   const response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ posterId: posterId }),
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include',
+   });
+   const posters: serverNotificationsResponse = await response.json();
+   console.log("🚀 ~ getNotifications ~ posters:", posters)
+
+   localStorage.setItem('isAuth', `${posters.accountInfo.isAuth}`)
+   localStorage.setItem('isNotAdmin', `${posters.accountInfo.isNotAdmin}`)
+
+   if (response.status === 200) {
+      console.log("🚀 ~ file: getPosters.ts:13 ~ getPosters ~ response.status:", response.status)
+
+      const obj: InnerNotificationsResponse = {
+         resCode: response.status,
+         notificationsInfo: posters.message || [],
+         err: ''
+      };
+
+      return obj
+   }
+   else {
+      const obj: InnerNotificationsResponse = {
+         resCode: response.status,
+         notificationsInfo: [],
+         err: posters.error || 'Произошла ошибка. Попробуйте позже',
+      };
+
+      return obj;
+   }
+};
 
 // export const getNewBooks = async () => {
 //    const newBooksUrl = new URL(DOMAIN + NEW);

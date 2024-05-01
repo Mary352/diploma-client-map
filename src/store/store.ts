@@ -3,12 +3,14 @@ import { useDispatch, TypedUseSelectorHook, useSelector } from 'react-redux'
 import { postersReducer } from './posterSlice'
 import { accountReducer } from './accountSlice'
 import { userReducer } from './userSlice'
+import { commentReducer } from './commentSlice'
 
 export const store = configureStore({
    reducer: {
       posters: postersReducer,
       account: accountReducer,
       user: userReducer,
+      comments: commentReducer,
    }
 })
 
