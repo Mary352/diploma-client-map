@@ -25,6 +25,7 @@ export const CommentAdd = ({ posterId, handleSendingNewComment }: CommentAddProp
          dispatch(addCommentThunk({
             posterId: posterId,
             comment: comment,
+            currentPageLink: window.location.href
          }))
       }
       // handleSendingNewComment(e)

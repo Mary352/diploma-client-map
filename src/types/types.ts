@@ -502,7 +502,8 @@ export type InnerResponse = {
 
 export type CommentToAdd = {
    posterId: number,
-   comment: string
+   comment: string,
+   currentPageLink: string
 }
 
 export type CommentToUpd = {
