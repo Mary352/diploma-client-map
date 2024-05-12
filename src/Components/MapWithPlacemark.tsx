@@ -1,6 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { YMaps, Map, SearchControl, Placemark } from '@pbe/react-yandex-maps';
-import { APIKEY_YMAPS, SUGGEST_APIKEY_YMAPS } from '../types/commonVars';
 
 type MapWithPlacemarkProps = {
    address: string,
@@ -11,7 +9,7 @@ type MapWithPlacemarkProps = {
 export const MapWithPlacemark = ({ address, coord0, coord1 }: MapWithPlacemarkProps) => {
 
    return (
-      <YMaps query={{ apikey: APIKEY_YMAPS, suggest_apikey: SUGGEST_APIKEY_YMAPS }}>
+      <YMaps query={{ apikey: process.env.REACT_APP_APIKEY_YMAPS, suggest_apikey: process.env.REACT_APP_SUGGEST_APIKEY_YMAPS }}>
 
          <div>
             {address}

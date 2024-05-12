@@ -15,7 +15,6 @@ import { ErrorPage } from './ErrorPage';
 import { LoadingInfo } from './LoadingInfo';
 import { getUsersFilteredThunk, getUsersThunk } from '../store/userSlice';
 import { useNavigate } from 'react-router-dom';
-import { YEARS_TO_SAVE_USERS } from '../types/commonVars';
 
 export const UsersList = () => {
 
@@ -90,7 +89,7 @@ export const UsersList = () => {
       console.log("🚀 ~ isActiveUser ~ dateToday:", dateToday)
       let dateLastActivityPlusSaveYears = new Date(dt);
 
-      dateLastActivityPlusSaveYears.setFullYear(dateLastActivity.getFullYear() + YEARS_TO_SAVE_USERS);
+      dateLastActivityPlusSaveYears.setFullYear(dateLastActivity.getFullYear() + (+(process.env.REACT_APP_YEARS_TO_SAVE_USERS as string)));
       console.log("🚀 ~ isActiveUser ~ dateLastActivityPlusSaveYears:", dateLastActivityPlusSaveYears)
 
       if (dateLastActivityPlusSaveYears > dateToday) {

@@ -1,5 +1,5 @@
 import { YMaps, Map, SearchControl } from '@pbe/react-yandex-maps';
-import { APIKEY_YMAPS, SUGGEST_APIKEY_YMAPS } from '../types/commonVars';
+// import { APIKEY_YMAPS, SUGGEST_APIKEY_YMAPS } from '../types/commonVars';
 
 type MapWithSearchProps = {
    handleSearchChange: (event: any) => void,
@@ -12,7 +12,7 @@ export const MapWithSearch = ({ handleSearchChange, selectedTextAddress }: MapWi
    // const [selectedTextAddress, setSelectedTextAddress] = useState<number[]>([]);
 
    return (
-      <YMaps query={{ apikey: APIKEY_YMAPS, suggest_apikey: SUGGEST_APIKEY_YMAPS }}>
+      <YMaps query={{ apikey: process.env.REACT_APP_APIKEY_YMAPS, suggest_apikey: process.env.REACT_APP_SUGGEST_APIKEY_YMAPS }}>
          <div>
             Выбранный адрес: {selectedTextAddress}
 

@@ -30,7 +30,6 @@ import { useAppDispatch, useAppSelector } from '../store/store';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
-import { APP_NAME } from '../types/commonVars';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
 import { getNotificationsThunk } from '../store/posterSlice';
@@ -114,7 +113,7 @@ export const Header = () => {
                      textTransform: 'initial'
                   }}
                >
-                  {APP_NAME}
+                  {process.env.REACT_APP_NAME}
                </Typography>
 
             </Button>

@@ -1,5 +1,7 @@
 import { Box, Typography } from "@mui/material"
-import { APP_NAME } from "../types/commonVars"
+// import { APP_NAME } from "../types/commonVars"
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 export const Footer = () => {
    return (
@@ -28,7 +30,7 @@ export const Footer = () => {
                marginBottom: 6,
             }}
          >
-            ©2024 {APP_NAME}
+            ©2024 {process.env.REACT_APP_NAME}
          </Typography>
          <Typography
             variant="body1"
