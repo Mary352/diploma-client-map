@@ -132,9 +132,11 @@ export type PosterToUpdate = {
 export type UserToUpdate = {
    id: string | undefined,
    "name": string,
-   "phone": string
+   "phone": string,
    "address": string,
    "role": string,
+   "coord0": string,
+   "coord1": string,
 }
 
 export type PosterServer = {

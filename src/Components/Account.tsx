@@ -11,6 +11,7 @@ import { ErrorMessageComp } from "./ErrorMessageComp";
 import { ErrorPage } from "./ErrorPage";
 import { deleteUser } from "../server/getUsers";
 // import InputBase from '@mui/material/InputBase';
+import { MapWithSearch } from "./MapWithSearch"
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
    color: 'inherit',
@@ -45,6 +46,10 @@ export const Account = () => {
    const isNotAdmin = localStorage.getItem('isNotAdmin');
    const currentUserId = localStorage.getItem('userId');
 
+   const [selectedAddressCoords, setSelectedAddressCoords] = useState<number[]>([]);
+   const [selectedTextAddress, setSelectedTextAddress] = useState<string>('');
+
+
    const isAuthorizedState = useAppSelector(state => state.account.isAuthorized)
    const isLogout = useAppSelector(state => state.account.logout)
 
@@ -71,6 +76,32 @@ export const Account = () => {
 
 
    const status = useAppSelector(state => state.user.status)
+
+   const handleSearchChange = (event: any) => {
+      // setAddress(event.target?.value);
+      console.log('--------1----------')
+      // console.log('handleSearchChange', event.target?.value)
+      // console.log('handleSearchChange target', event.target)
+      console.log('handleSearchChange event', event)
+      console.log('handleSearchChange typeof event', typeof event)
+      const selectedItem = event.get('target').getResultsArray()[0];
+      console.log("🚀 ~ file: newch.html:42 ~ selectedItem:", selectedItem)
+      const selectedAddress2 = selectedItem?.properties.get('text');
+      setSelectedTextAddress(selectedAddress2)
+      console.log("🚀 ~ file: newch.html:44 ~ selectedAddress:", selectedAddress2)
+
+      // const coords = event.geometry?._coordinates;
+      // console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ coords:", coords)
+      if (selectedItem) {
+         const coords = selectedItem.geometry?._coordinates;
+         setSelectedAddressCoords(coords)
+         console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ coords:", coords)
+         console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ typeof coords:", typeof coords)
+         console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ typeof selectedAddressCoords:", typeof selectedAddressCoords)
+         console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ selectedAddressCoords:", selectedAddressCoords)
+      }
+      console.log('--------1----------')
+   };
 
    // const name = useAppSelector(state => state.account.nameInput)
    // const email = useAppSelector(state => state.account.emailInput)
@@ -130,17 +161,20 @@ export const Account = () => {
       // setHiddenData(true)
       user?.name && dispatch(setName(user?.name))
       user?.phone && dispatch(setPhone(user?.phone))
-      user?.address && dispatch(setAddress(user?.address))
-      user?.address && dispatch(setAddress(user?.address))
+      // selectedTextAddress && dispatch(setAddress(selectedTextAddress))
+      // user?.address && dispatch(setAddress(user?.address))
    }
 
    const saveUserData = () => {
       dispatch(updateUserThunk({
          id: '' + user?.id,
-         address: address,
          name: name,
          phone: phone,
-         role: role
+         role: role,
+         // address: address,
+         address: selectedTextAddress,
+         coord0: '' + selectedAddressCoords[0],
+         coord1: '' + selectedAddressCoords[1]
       }))
       dispatch(setHiddenData(false))
       // dispatch(clearInputs())
@@ -219,17 +253,23 @@ export const Account = () => {
    )
 
    const addressInput = (
-      <Box>
-         <TextField sx={{
-            mt: { xs: 6, md: 4 }, mb: { xs: 9, md: 2 },
-            width: '45%',
-            // width: { xs: '100%', md: '80%' },
-            bgcolor: '#fff',
-            // marginBottom: { xs: 6, md: 0 }
-         }}
-            inputProps={{ maxLength: maxLength175 }}
-            label="Адрес" variant="outlined" value={address} onChange={handleAddressChange} />
-      </Box>
+      // <Box>
+      //    <TextField sx={{
+      //       mt: { xs: 6, md: 4 }, mb: { xs: 9, md: 2 },
+      //       width: '45%',
+      //       // width: { xs: '100%', md: '80%' },
+      //       bgcolor: '#fff',
+      //       // marginBottom: { xs: 6, md: 0 }
+      //    }}
+      //       inputProps={{ maxLength: maxLength175 }}
+      //       label="Адрес" variant="outlined" value={address} onChange={handleAddressChange} />
+      // </Box>
+
+      <>
+         Ранее назначенный адрес: {userAddress}
+         <MapWithSearch handleSearchChange={handleSearchChange} selectedTextAddress={selectedTextAddress} />
+
+      </>
    )
 
    const roleData = (
@@ -270,6 +310,7 @@ export const Account = () => {
    let userNameBox;
 
    useEffect(() => {
+      dispatch(setHiddenData(false))
 
       id && id !== 'null' && id !== null && dispatch(getOneUserThunk(id))
       console.log("🚀 ~ file: Account.tsx:212 ~ useEffect ~ id:", id)
@@ -283,9 +324,7 @@ export const Account = () => {
          console.log("🚀 ~ file: Account.tsx:250 ~ useEffect ~ isLogout:", isLogout)
          navigate('/signin')
       }
-
-
-
+      
    }, [id, isLogout])
 
    const createPosterLink = <p><Link to='/posters/create'>Создать объявление</Link></p>
@@ -297,8 +336,8 @@ export const Account = () => {
    if (isNotAdmin === 'true') {
       console.log("🚀 ~ file: Account.tsx:168 ~ Account ~ isNotAdmin:", isNotAdmin)
       userDataBox = <>
-         {createPosterLink}
-         {userPostersLink}
+         {!hiddenData && createPosterLink}
+         {!hiddenData && userPostersLink}
          {emailData}
          {/* {hiddenData ? emailInput : emailData} */}
          {hiddenData ? phoneInput : phoneData}
