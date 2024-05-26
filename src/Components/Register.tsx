@@ -254,7 +254,7 @@ export const Register = () => {
                required
                onFocus={handleFocus}
                inputProps={{ maxLength: maxLength60 }}
-               label="Имя (ФИО)" variant="outlined" value={name} onChange={handleNameChange} />
+               label="Имя" variant="outlined" value={name} onChange={handleNameChange} />
             <TextField sx={{
                pb: 6,
                width: '100%',
