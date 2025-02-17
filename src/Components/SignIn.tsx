@@ -91,6 +91,10 @@ export const SignIn = () => {
    }
 
    useEffect(() => {
+      dispatch(setErrorMsg(''))
+      dispatch(setEmail(''))
+      dispatch(setPassword(''))
+
       if (isAuthorizedState || isAuthorized === 'true') {
          navigate('/')
       }

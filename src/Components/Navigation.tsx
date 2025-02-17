@@ -13,8 +13,14 @@ import { ErrorPage } from "./ErrorPage";
 import { UsersList } from "./UsersList";
 import { PostersListPage } from "./PostersListPage";
 import { SuspiciousCommentsList } from "./SuspiciousCommentsList";
+import { useEffect } from "react";
 
 export const Navigation = () => {
+
+   // useEffect(() => {
+
+   // })
+
    return <Box sx={{ boxSizing: 'border-box' }}>
       <Header />
       <Routes>

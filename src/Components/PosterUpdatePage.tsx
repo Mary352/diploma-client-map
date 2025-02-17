@@ -1,7 +1,7 @@
 import { Box, Button, FormControl, InputLabel, NativeSelect, TextField, Typography, Select, SelectChangeEvent, Checkbox, FormControlLabel, MenuItem } from "@mui/material"
 import { useAppDispatch, useAppSelector } from "../store/store"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { createPosterThunk, getItemCategoriesThunk, getPosterByIdThunk, setAddress, setBreed, setDateOfAction, setDescription, setIsPet, setItem, setItemStatus, setObjectCategory, setPhone, setPhotoFile, setResponseCode, updatePosterThunk } from "../store/posterSlice"
+import { clearUpdInputs, createPosterThunk, getItemCategoriesThunk, getPosterByIdThunk, setAddress, setBreed, setDateOfAction, setDescription, setIsPet, setItem, setItemStatus, setObjectCategory, setPhone, setPhotoFile, setResponseCode, updatePosterThunk } from "../store/posterSlice"
 import { ChangeEvent, useEffect, useState } from "react"
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { PosterToCreate } from "../types/types"
@@ -11,39 +11,56 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MapWithSearch } from "./MapWithSearch"
+import { isPhoneValid } from "../types/commonFunctions"
+import { HELPER_PHONE_TEXT } from "../types/commonVars"
+import { HashLink } from "react-router-hash-link"
 
 // type Props = {
 //    errorMessage: string
 // }
 
 export const PosterUpdatePage = () => {
+   // !
+   // const item = useAppSelector(state => state.posters.itemInput)
+   const breed = useAppSelector(state => state.posters.breedInput)
+   // const isPet = useAppSelector(state => state.posters.isPetInput)
+   const objectCategory = useAppSelector(state => state.posters.objectCategoryInput)
+   const description = useAppSelector(state => state.posters.descriptionInput)
+   // const itemStatus = useAppSelector(state => state.posters.itemStatusInput)
+   // const dateOfAction = useAppSelector(state => state.posters.dateOfActionInput)
+   // const photoFile = useAppSelector(state => state.posters.photoFileInput)
+   const phone = useAppSelector(state => state.posters.phoneInput)
+   // const selectedTextAddress = useAppSelector(state => state.posters.addressInput)
+   // const selectedAddressCoords = useAppSelector(state => state.posters.coordsInput)
 
    // ---YMaps
    const [selectedAddressCoords, setSelectedAddressCoords] = useState<number[]>([]);
    const [selectedTextAddress, setSelectedTextAddress] = useState<string>('');
 
+   const [isValidPhone, setIsValidPhone] = useState(true);
+   const [isValidPhoneText, setIsValidPhoneText] = useState('');
 
    const { id } = useParams();
 
    const poster = useAppSelector((state) => state.posters.poster)
 
-   const [item, setItem] = useState<string>('')
-   const [isPet, setIsPet] = useState<boolean>(false)
-   const [itemStatus, setItemStatus] = useState<string>('')
-   const [dateOfAction, setDateOfAction] = useState<string>('')
+   // const [item, setItem] = useState<string>('')
+   // const [isPet, setIsPet] = useState<boolean>(false)
+   // const [itemStatus, setItemStatus] = useState<string>('')
+   // const [dateOfAction, setDateOfAction] = useState<string>('')
 
-   const [breed, setBreed] = useState<string | null | undefined>()
-   const [objectCategory, setObjectCategory] = useState<string | undefined>()
-   const [description, setDescription] = useState<string | undefined>(poster?.description)
+   // const [breed, setBreed] = useState<string | null | undefined>(poster?.breed)
+   // const [objectCategory, setObjectCategory] = useState<string | undefined>(poster?.ObjectCategories?.category)
+   // const [description, setDescription] = useState<string | undefined>(poster?.description)
    const [photoFile, setPhotoFile] = useState<File | null>(null)
-   const [phone, setPhone] = useState<string | undefined>(poster?.phone)
+   // const [phone, setPhone] = useState<string | undefined>(poster?.phone)
    const [address, setAddress] = useState<string | undefined>(poster?.address)
 
    const maxLength60 = 60;
    const maxLength100 = 100;
    const maxLength1000 = 1000;
    const maxLength175 = 175;
-   const maxLength18 = 18;
+   const maxLength18 = 13;
 
    // const item = useAppSelector(state => state.posters.itemInput)
    // const breed = useAppSelector(state => state.posters.breedInput)
@@ -69,8 +86,8 @@ export const PosterUpdatePage = () => {
    //    dispatch(setItem(e.target.value))
    // }
    const handleBreedChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      // dispatch(setBreed(e.target.value))
-      setBreed(e.target.value)
+      dispatch(setBreed(e.target.value))
+      // setBreed(e.target.value)
    }
    // const handleIsPetChange = (e: ChangeEvent<HTMLInputElement>) => {
    //    dispatch(setIsPet(e.target.checked))
@@ -80,13 +97,13 @@ export const PosterUpdatePage = () => {
    // }
    // ChangeEvent<HTMLSelectElement>
    const handleObjectCategoryChange = (event: SelectChangeEvent<string>) => {
-      // dispatch(setObjectCategory(event.target.value as string))
-      setObjectCategory(event.target.value as string)
+      dispatch(setObjectCategory(event.target.value as string))
+      // setObjectCategory(event.target.value as string)
       // dispatch(setObjectCategory(e.target.value))
    }
    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      // dispatch(setDescription(e.target.value))
-      setDescription(e.target.value)
+      dispatch(setDescription(e.target.value))
+      // setDescription(e.target.value)
    }
    // const handleItemStatusChange = (event: ChangeEvent<HTMLSelectElement>) => {
    //    dispatch(setItemStatus(event.target.value as string))
@@ -120,8 +137,18 @@ export const PosterUpdatePage = () => {
    // }
 
    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      // dispatch(setPhone(e.target.value))
-      setPhone(e.target.value)
+      // // dispatch(setPhone(e.target.value))
+      // setPhone(e.target.value)
+      const inputValue = e.target.value;
+
+      dispatch(setPhone(inputValue))
+
+      // setPhone(inputValue)
+
+      if (isPhoneValid(inputValue)) {
+         setIsValidPhone(isPhoneValid(inputValue))
+         setIsValidPhoneText('')
+      }
    }
    const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       // dispatch(setAddress(e.target.value))
@@ -169,7 +196,7 @@ export const PosterUpdatePage = () => {
       console.log('--------1----------')
    };
 
-   const selectItemCategoryInput = <FormControl fullWidth sx={{ pt: 12, pb: 6, }}>
+   const selectItemCategoryInput = <FormControl fullWidth sx={{ pt: 4, pb: 6, }}>
       <InputLabel variant="standard" htmlFor="objectCategory">
          Категория объекта
       </InputLabel>
@@ -191,7 +218,7 @@ export const PosterUpdatePage = () => {
       {/* {menuItems} */}
    </FormControl>
 
-   const selectPetCategoryInput = <FormControl fullWidth sx={{ pt: 12, pb: 6, }}>
+   const selectPetCategoryInput = <FormControl fullWidth sx={{ pt: 4, pb: 6, }}>
       <InputLabel variant="standard" htmlFor="objectCategory">
          Категория объекта
       </InputLabel>
@@ -217,24 +244,44 @@ export const PosterUpdatePage = () => {
       // if (isAuthorizedState || isAuthorized === 'true') {
       //    navigate('/')
       // }
-      id && dispatch(getPosterByIdThunk(id))
+      console.log('!!!!!!!!!!! useEffect UPD POSTER')
+      dispatch(clearUpdInputs())
+      // ! from wind loc search check
+      const isUpdated = new URL(window.location.href).searchParams.get('isupdated')
+      if (isUpdated === 'true') {
+         id && dispatch(getPosterByIdThunk({ id: id, isUpdated: 'true' }))
+      } else {
+         id && dispatch(getPosterByIdThunk({ id: id, isUpdated: undefined }))
+      }
+      // id && dispatch(getPosterByIdThunk({ id: id, isUpdated: 'true' }))
+
+      // const state = location.state as LocationState;
+      // if (state.isUpdated === 'true') {
+      //    id && dispatch(getPosterByIdThunk({ id: id, isUpdated: state.isUpdated }))
+      // } else {
+      //    id && dispatch(getPosterByIdThunk({ id: id, isUpdated: undefined }))
+      // }
+
+
+      console.log('Category ', poster?.ObjectCategories?.category)
+      console.log('Category ', poster?.item)
 
       dispatch(getItemCategoriesThunk())
 
-      setItem(poster?.item || '')
-      setIsPet(poster?.isPet || false)
-      setItemStatus(poster?.itemStatus || '')
-      setDateOfAction(poster?.dateOfAction || '')
+      // setItem(poster?.item || '')
+      // setIsPet(poster?.isPet || false)
+      // setItemStatus(poster?.itemStatus || '')
+      // setDateOfAction(poster?.dateOfAction || '')
       // dispatch(setItemStatus('потеряно'))
-      setBreed(poster?.breed)
-      if (isPet) {
-         setObjectCategory(poster?.ObjectCategories?.category || 'Прочие')
-      } else {
-         setObjectCategory(poster?.ObjectCategories?.category || 'Другое')
-      }
-      setDescription(poster?.description)
-      setPhone(poster?.phone)
-      setAddress(poster?.address)
+      // setBreed(poster?.breed)
+      // if (poster?.isPet) {
+      //    setObjectCategory(poster?.ObjectCategories?.category || 'Прочие')
+      // } else {
+      //    setObjectCategory(poster?.ObjectCategories?.category || 'Другое')
+      // }
+      // setDescription(poster?.description)
+      // setPhone(poster?.phone)
+      // setAddress(poster?.address)
 
       // console.log('123', poster?.ObjectCategories?.category)
 
@@ -271,6 +318,14 @@ export const PosterUpdatePage = () => {
       // console.log("🚀 ~ file: PosterCreatePage.tsx:180 ~ handleFormSubmit ~ formattedDateOfAction:", new Date(formattedDateOfAction))
 
       // console.log("🚀 ~ file: PosterUpdatePage.tsx:194 ~ handleFormSubmit ~ id:", id)
+      if (phone && !isPhoneValid(phone)) {
+         setIsValidPhone(false);
+         setIsValidPhoneText(HELPER_PHONE_TEXT)
+         return
+      }
+
+      setIsValidPhone(true);
+      setIsValidPhoneText('');
 
       dispatch(updatePosterThunk({
          id: id,
@@ -318,27 +373,35 @@ export const PosterUpdatePage = () => {
             <form encType="multipart/form-data" onSubmit={handleFormSubmit}>
                <Box sx={{ display: 'flex' }}>
                   <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Тема: </Typography>
-                  <Typography variant="body1" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 } }}>{item}</Typography>
+                  <Typography variant="body1" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 } }}>{poster?.item}</Typography>
                </Box>
                {/* {selectItemStatusInput} */}
                <Box sx={{ display: 'flex' }}>
                   <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Статус: </Typography>
-                  <Typography variant="body1" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 } }}>{itemStatus}</Typography>
+                  <Typography variant="body1" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 } }}>{poster?.itemStatus}</Typography>
                </Box>
                <Box sx={{ display: 'flex' }}>
                   <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Дата события: </Typography>
-                  <Typography variant="body1" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 } }}>{dateOfAction}</Typography>
+                  <Typography variant="body1" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 } }}>{poster?.dateOfAction}</Typography>
                </Box>
                {/* handleIsPetChange */}
 
                {/* {isPet ? 'y' : 'n'} */}
-               <FormControlLabel
+               {poster?.isPet ? <FormControlLabel
                   sx={{ pb: 6 }}
                   disabled
                   label="Это животное?"
-                  control={<Checkbox checked={isPet} />}
-               />
-               {isPet && <Box>
+                  control={<Checkbox checked={true} />}
+               /> :
+                  <FormControlLabel
+                     sx={{ pb: 6 }}
+                     disabled
+                     label="Это животное?"
+                     control={<Checkbox checked={false} />}
+                  />
+               }
+
+               {poster?.isPet && <Box>
                   <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Порода: </Typography>
                   <TextField sx={{
                      pb: 6,
@@ -358,7 +421,7 @@ export const PosterUpdatePage = () => {
                   <Typography variant="body1" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 } }}>{objectCategory}</Typography>
                </Box>
 
-               {isPet ? selectPetCategoryInput : selectItemCategoryInput}
+               {poster?.isPet ? selectPetCategoryInput : selectItemCategoryInput}
                {/* <FormControl fullWidth sx={{ pt: 12, pb: 6, }}>
                   <InputLabel variant="standard" htmlFor="objectCategory">
                      Категория объекта
@@ -418,6 +481,8 @@ export const PosterUpdatePage = () => {
 
                   // label="Телефон"
                   inputProps={{ maxLength: maxLength18 }}
+                  error={!isValidPhone}
+                  helperText={isValidPhoneText}
                   variant="outlined" value={phone} onChange={handlePhoneChange} />
                {/* <TextField sx={{
                   pb: 6,
@@ -446,10 +511,10 @@ export const PosterUpdatePage = () => {
 
                {/* <input type="file" onChange={handleChange} /> */}
                {/* {selectedFile && selectedFile.name} */}
-               Ранее назначенный адрес: {address}
+               Ранее назначенный адрес: {poster?.address}
                <MapWithSearch handleSearchChange={handleSearchChange} selectedTextAddress={selectedTextAddress} />
 
-               <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Выберите фото: </Typography>
+               <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Выберите фото (или отставьте пустым, если не меняете): </Typography>
                <input style={{ marginBottom: '56px' }} type="file" onChange={handlePhotoFileChange} />
 
                <Button type="submit" variant='contained' sx={{

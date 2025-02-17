@@ -12,6 +12,8 @@ import { ErrorPage } from "./ErrorPage";
 import { deleteUser } from "../server/getUsers";
 // import InputBase from '@mui/material/InputBase';
 import { MapWithSearch } from "./MapWithSearch"
+import { isPhoneValid } from "../types/commonFunctions"
+import { HELPER_PHONE_TEXT } from "../types/commonVars"
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
    color: 'inherit',
@@ -38,7 +40,7 @@ export const Account = () => {
    const { id } = useParams();
 
    const maxLength60 = 60;
-   const maxLength18 = 18;
+   const maxLength18 = 13;
    const maxLength175 = 175;
 
    // const [email, setEmail] = useState('');
@@ -48,7 +50,8 @@ export const Account = () => {
 
    const [selectedAddressCoords, setSelectedAddressCoords] = useState<number[]>([]);
    const [selectedTextAddress, setSelectedTextAddress] = useState<string>('');
-
+   const [isValidPhone, setIsValidPhone] = useState(true);
+   const [isValidPhoneText, setIsValidPhoneText] = useState('');
 
    const isAuthorizedState = useAppSelector(state => state.account.isAuthorized)
    const isLogout = useAppSelector(state => state.account.logout)
@@ -59,6 +62,7 @@ export const Account = () => {
    const hiddenData = useAppSelector(state => state.user.hiddenData)
    const user = useAppSelector(state => state.user.user)
    const userEmail = useAppSelector(state => state.user.user?.email)
+   const userName = useAppSelector(state => state.user.user?.name)
    const userPhone = useAppSelector(state => state.user.user?.phone)
    const userAddress = useAppSelector(state => state.user.user?.address)
    const userRole = useAppSelector(state => state.user.user?.role)
@@ -132,7 +136,14 @@ export const Account = () => {
    }
 
    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      dispatch(setPhone(e.target.value))
+      const inputValue = e.target.value;
+
+      dispatch(setPhone(inputValue))
+
+      if (isPhoneValid(inputValue)) {
+         setIsValidPhone(isPhoneValid(inputValue))
+         setIsValidPhoneText('')
+      }
    }
 
    const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -153,19 +164,33 @@ export const Account = () => {
    const showInputs = () => {
       dispatch(setHiddenData(true))
       userRole && dispatch(setRole(userRole))
+      userName && dispatch(setName(userName))
+      userPhone && dispatch(setPhone(userPhone))
+
+      setIsValidPhone(true);
+      setIsValidPhoneText('');
       // setHiddenData(true)
    }
    const hideInputs = () => {
       dispatch(setHiddenData(false))
-      // dispatch(clearInputs())
+      dispatch(clearInputs())
       // setHiddenData(true)
-      user?.name && dispatch(setName(user?.name))
-      user?.phone && dispatch(setPhone(user?.phone))
+      // user?.name && dispatch(setName(user?.name))
+      // user?.phone && dispatch(setPhone(user?.phone))
       // selectedTextAddress && dispatch(setAddress(selectedTextAddress))
       // user?.address && dispatch(setAddress(user?.address))
    }
 
    const saveUserData = () => {
+      if (isNotAdmin !== 'false' && phone && !isPhoneValid(phone)) {
+         setIsValidPhone(false);
+         setIsValidPhoneText(HELPER_PHONE_TEXT)
+         return
+      }
+
+      setIsValidPhone(true);
+      setIsValidPhoneText('');
+
       dispatch(updateUserThunk({
          id: '' + user?.id,
          name: name,
@@ -177,7 +202,7 @@ export const Account = () => {
          coord1: '' + selectedAddressCoords[1]
       }))
       dispatch(setHiddenData(false))
-      // dispatch(clearInputs())
+      dispatch(clearInputs())
       // setHiddenData(true)
    }
 
@@ -241,6 +266,8 @@ export const Account = () => {
             // marginBottom: { xs: 6, md: 0 }
          }}
             inputProps={{ maxLength: maxLength18 }}
+            error={!isValidPhone}
+            helperText={isValidPhoneText}
             label="Телефон" variant="outlined" value={phone} onChange={handlePhoneChange} />
       </Box>
    )
@@ -324,7 +351,7 @@ export const Account = () => {
          console.log("🚀 ~ file: Account.tsx:250 ~ useEffect ~ isLogout:", isLogout)
          navigate('/signin')
       }
-      
+
    }, [id, isLogout])
 
    const createPosterLink = <p><Link to='/posters/create'>Создать объявление</Link></p>
@@ -409,7 +436,7 @@ export const Account = () => {
 
       {isNotAdmin === 'false' && userRole !== 'admin' && <Button variant='contained' sx={{
          width: '30%',
-         marginTop: 16,
+         marginTop: 7,
          // marginBottom: 12,
          paddingY: 3,
          bgcolor: '#FC8F32',
@@ -499,10 +526,15 @@ export const Account = () => {
          paddingX: { xs: '25px', md: '35px', xl: '40px' },
          paddingY: { xs: 14, md: 18 },
       }}>
-         <Button onClick={handleClickBack} sx={{ mt: { xs: 14, md: 18 } }}>
+         <Button onClick={handleClickBack}
+            sx={{ mt: { xs: 14, md: 18 } }}
+         >
             <KeyboardBackspaceIcon fontSize="large" sx={{ color: "system.main" }} />
          </Button>
-         <Typography variant="h1" component='h1' sx={{ pt: { xs: 6, md: 8 }, pb: { xs: 9, md: 12 } }}>Профиль</Typography>
+         <Typography variant="h1" component='h1' sx={{ pt: { xs: 6, md: 8 }, pb: { xs: 9, md: 12 } }}>
+            {(isNotAdmin === 'false' && id !== currentUserId) ? 'Страница пользователя' : 'Профиль'}
+
+         </Typography>
 
          {/* {nameData} */}
          {userNameBox}

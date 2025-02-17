@@ -138,7 +138,7 @@ export const userSlice = createSlice({
                const { resCode, accountInfo } = action.payload
                if (action.payload.user !== null) {
 
-                  return { ...state, user: action.payload.user, responseCode: resCode, isAuthorized: accountInfo.isAuth, isNotAdmin: accountInfo.isNotAdmin, status: 'fulfilled' }
+                  return { ...state, user: action.payload.user, phoneInput: action.payload.user.phone, nameInput: action.payload.user.name, responseCode: resCode, isAuthorized: accountInfo.isAuth, isNotAdmin: accountInfo.isNotAdmin, status: 'fulfilled' }
                }
                else {
                   return { ...state, responseCode: resCode, isAuthorized: accountInfo.isAuth, isNotAdmin: accountInfo.isNotAdmin, status: 'fulfilled' }

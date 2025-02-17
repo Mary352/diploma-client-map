@@ -12,22 +12,39 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MapWithSearch } from "./MapWithSearch"
 import { YMaps, Map, SearchControl, Placemark } from '@pbe/react-yandex-maps';
+import { PhoneInput } from "./PhoneInput"
+import { isPhoneValid } from "../types/commonFunctions"
+import { HELPER_PHONE_TEXT, errors, objectState } from "../types/commonVars"
+import { ErrorPage } from "./ErrorPage"
 
 // type Props = {
 //    errorMessage: string
 // }
 
 export const PosterCreatePage = () => {
-   const item = useAppSelector(state => state.posters.itemInput)
-   const breed = useAppSelector(state => state.posters.breedInput)
-   const isPet = useAppSelector(state => state.posters.isPetInput)
-   const objectCategory = useAppSelector(state => state.posters.objectCategoryInput)
-   const description = useAppSelector(state => state.posters.descriptionInput)
-   const itemStatus = useAppSelector(state => state.posters.itemStatusInput)
-   const dateOfAction = useAppSelector(state => state.posters.dateOfActionInput)
-   const photoFile = useAppSelector(state => state.posters.photoFileInput)
+   // const item = useAppSelector(state => state.posters.itemInput)
+   // const breed = useAppSelector(state => state.posters.breedInput)
+   // const isPet = useAppSelector(state => state.posters.isPetInput)
+   // const objectCategory = useAppSelector(state => state.posters.objectCategoryInput)
+   // const description = useAppSelector(state => state.posters.descriptionInput)
+   // const itemStatus = useAppSelector(state => state.posters.itemStatusInput)
+   // const dateOfAction = useAppSelector(state => state.posters.dateOfActionInput)
+   // const photoFile = useAppSelector(state => state.posters.photoFileInput)
    const phone = useAppSelector(state => state.posters.phoneInput)
-   const address = useAppSelector(state => state.posters.addressInput)
+   // const address = useAppSelector(state => state.posters.addressInput)
+
+   const [item, setItem] = useState<string>('')
+   const [isPet, setIsPet] = useState<boolean>(false)
+   const [itemStatus, setItemStatus] = useState<string>(objectState.lost)
+   const [dateOfAction, setDateOfAction] = useState<dayjs.Dayjs | null>(null)
+   const [breed, setBreed] = useState<string | null>('')
+   const [objectCategory, setObjectCategory] = useState<string>('')
+   const [description, setDescription] = useState<string>('')
+   // const [photoFile, setPhotoFile] = useState<File | null>(null)
+   // const [phone, setPhone] = useState<string>('')
+   // const [address, setAddress] = useState<string | undefined>(poster?.address)
+
+   // const phoneRegex = /^(?:\+|\d)[\d]{9,}\d$/;
 
    // const [petCategories, setPetCategories] = useState<string[]>([])
    // const [itemCategories, setItemCategories] = useState<string[]>([])
@@ -39,6 +56,8 @@ export const PosterCreatePage = () => {
    const responseCode = useAppSelector(state => state.posters.responseCode)
    // const isAuthorizedState = useAppSelector(state => state.posters.isAuthorized)
 
+   const [isValidPhone, setIsValidPhone] = useState(true);
+   const [isValidPhoneText, setIsValidPhoneText] = useState('');
    const [showDateEmptyError, setShowDateEmptyError] = useState(false)
    const [showAddressEmptyError, setShowAddressEmptyError] = useState(false)
 
@@ -46,37 +65,50 @@ export const PosterCreatePage = () => {
    const maxLength100 = 100;
    const maxLength1000 = 1000;
    const maxLength175 = 175;
-   const maxLength18 = 18;
+   // const maxLength18 = 18;
 
    const dispatch = useAppDispatch()
    const navigate = useNavigate()
    const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      dispatch(setItem(e.target.value))
+      // dispatch(setItem(e.target.value))
+      setItem(e.target.value)
    }
    const handleBreedChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      dispatch(setBreed(e.target.value))
+      // dispatch(setBreed(e.target.value))
+      setBreed(e.target.value)
    }
    const handleIsPetChange = (e: ChangeEvent<HTMLInputElement>) => {
-      dispatch(setIsPet(e.target.checked))
+      // dispatch(setIsPet(e.target.checked))
+      setIsPet(e.target.checked)
       if (!e.target.checked) {
-         dispatch(setBreed(null))
-         dispatch(setObjectCategory('Другое'))
+         // dispatch(setBreed(null))
+         // dispatch(setObjectCategory('Другое'))
+         setBreed(null)
+         setObjectCategory('Другое')
       }
       if (e.target.checked) {
-         dispatch(setObjectCategory('Прочие'))
+         // dispatch(setObjectCategory('Прочие'))
+         setObjectCategory('Прочие')
       }
    }
    // ChangeEvent<HTMLSelectElement>
    const handleObjectCategoryChange = (event: SelectChangeEvent<string>) => {
-      dispatch(setObjectCategory(event.target.value as string))
+      // dispatch(setObjectCategory(event.target.value as string))
+      setObjectCategory(event.target.value as string)
       // dispatch(setObjectCategory(e.target.value))
    }
    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      dispatch(setDescription(e.target.value))
+      // dispatch(setDescription(e.target.value))
+      setDescription(e.target.value)
    }
    const handleItemStatusChange = (event: ChangeEvent<HTMLSelectElement>) => {
-      dispatch(setItemStatus(event.target.value as string))
+      // dispatch(setItemStatus(event.target.value as string))
+      setItemStatus(event.target.value as string)
    }
+
+   // const isPhoneValid = (phone: string) => {
+   //    return phoneRegex.test(phone);
+   // };
 
    const handlePhotoFileChange = (event: ChangeEvent<HTMLInputElement>) => {
       // dispatch(setPhotoFile(e.target.value))
@@ -91,9 +123,16 @@ export const PosterCreatePage = () => {
       if (file) setSelectedFile(file)
    }
 
-   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      dispatch(setPhone(e.target.value))
-   }
+   // const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+   //    const inputValue = e.target.value;
+
+   //    dispatch(setPhone(inputValue))
+
+   //    if (isPhoneValid(inputValue)) {
+   //       setIsValidPhone(isPhoneValid(inputValue))
+   //       setIsValidPhoneText('')
+   //    }
+   // }
    // const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
    //    dispatch(setAddress(e.target.value))
    // }
@@ -102,15 +141,16 @@ export const PosterCreatePage = () => {
       navigate('/posters')
 
       dispatch(setResponseCode(0))
-      dispatch(setItem(''))
-      dispatch(setBreed(null))
-      dispatch(setIsPet(false))
-      dispatch(setObjectCategory(''))
-      dispatch(setDescription(''))
-      dispatch(setItemStatus('потеряно'))
-      dispatch(setDateOfAction(null))
-      dispatch(setPhotoFile(null))
+      // dispatch(setItem(''))
+      // dispatch(setBreed(null))
+      // dispatch(setIsPet(false))
+      // dispatch(setObjectCategory(''))
+      // dispatch(setDescription(''))
+      // dispatch(setItemStatus('потеряно'))
+      // dispatch(setDateOfAction(null))
+      // dispatch(setPhotoFile(null))
       dispatch(setPhone(''))
+
       // dispatch(setAddress(''))
    }
 
@@ -171,24 +211,27 @@ export const PosterCreatePage = () => {
       // if (isAuthorizedState || isAuthorized === 'true') {
       //    navigate('/')
       // }
-      dispatch(setItemStatus('потеряно'))
+      // dispatch(setItemStatus('потеряно'))
+      dispatch(setPhone(''))
+      // setItemStatus('потеряно')
       dispatch(getItemCategoriesThunk())
-      dispatch(setObjectCategory('Другое'))
+      // dispatch(setObjectCategory('Другое'))
+      setObjectCategory('Другое')
 
       if (responseCode === 201) {
          navigate('/posters')
 
          dispatch(setResponseCode(0))
-         dispatch(setItem(''))
-         dispatch(setBreed(null))
-         dispatch(setIsPet(false))
-         dispatch(setObjectCategory('Другое'))
-         dispatch(setDescription(''))
-         dispatch(setItemStatus('потеряно'))
-         dispatch(setDateOfAction(null))
-         dispatch(setPhotoFile(null))
-         dispatch(setPhone(''))
-         dispatch(setAddress(''))
+         // dispatch(setItem(''))
+         // dispatch(setBreed(null))
+         // dispatch(setIsPet(false))
+         // dispatch(setObjectCategory('Другое'))
+         // dispatch(setDescription(''))
+         // dispatch(setItemStatus('потеряно'))
+         // dispatch(setDateOfAction(null))
+         // dispatch(setPhotoFile(null))
+         // dispatch(setPhone(''))
+         // dispatch(setAddress(''))
       }
 
       // const itemCategories = posterCategories.filter((category) => category.)
@@ -214,8 +257,9 @@ export const PosterCreatePage = () => {
             id: 'itemStatus',
          }}
       >
-         <option value='потеряно'>потеряно</option>
-         <option value='найдено'>найдено</option>
+         <option value={objectState.lost}>{objectState.lost}</option>
+         {/* <option value='найдено'>найдено</option> */}
+         <option value={objectState.lookingForOwner}>{objectState.lookingForOwner}</option>
       </NativeSelect>
       {/* {menuItems} */}
    </FormControl>
@@ -286,10 +330,20 @@ export const PosterCreatePage = () => {
          setShowDateEmptyError(true)
          return
       }
+
+      if (!isPhoneValid(phone)) {
+         setIsValidPhone(false);
+         setIsValidPhoneText(HELPER_PHONE_TEXT)
+         return
+      }
+
       if (!selectedTextAddress) {
          setShowAddressEmptyError(true)
          return
       }
+
+      setIsValidPhone(true);
+      setIsValidPhoneText('');
 
       dispatch(createPosterThunk({
          photo: selectedFile,
@@ -308,7 +362,20 @@ export const PosterCreatePage = () => {
       }))
    }
 
+   const status = useAppSelector(state => state.posters.status)
+   const isAuth = useAppSelector(state => state.posters.isAuth)
+   const isNotAdmin = useAppSelector(state => state.posters.isNotAdmin)
 
+   if ((status === 'fulfilled' && isAuth === false) || (status === 'fulfilled' && isAuth === true && isNotAdmin === false)) {
+      return <ErrorPage errorMessage={errors.forbidAccess} />
+   }
+   // if (responseCode === 401) {
+   //    navigate('/signin')
+   // }
+   // const errMsg = useAppSelector(state => state.posters.errorMsg)
+   // if (responseCode === 403) {
+   //    return <ErrorPage errorMessage={errMsg} />
+   // }
 
    return (
       <Box sx={{
@@ -402,13 +469,15 @@ export const PosterCreatePage = () => {
                         value={dayjs(dateOfAction)}
                         maxDate={dayjs()}
                         onChange={(newValue) => {
-                           dispatch(setDateOfAction(newValue))
+                           // dispatch(setDateOfAction(newValue))
+                           setDateOfAction(newValue)
                            setShowDateEmptyError(false)
                         }}
                      />
                   </DemoContainer>
                </LocalizationProvider>
-               <TextField sx={{
+               <PhoneInput page="posters" isValidPhone={isValidPhone} isValidPhoneText={isValidPhoneText} setIsValidPhone={setIsValidPhone} setIsValidPhoneText={setIsValidPhoneText} />
+               {/* <TextField sx={{
                   pb: 6,
                   width: '100%',
                   // width: { xs: '100%', md: '80%' },
@@ -418,7 +487,11 @@ export const PosterCreatePage = () => {
                   required
                   inputProps={{ maxLength: maxLength18 }}
                   placeholder="375291285623"
+                  error={!isValidPhone}
+                  helperText={isValidPhoneText}
                   label="Телефон" variant="outlined" value={phone} onChange={handlePhoneChange} />
+                */}
+
                {/* <TextField sx={{
 
                   pb: 14,
@@ -454,7 +527,7 @@ export const PosterCreatePage = () => {
                {/* <input type="file" onChange={handleChange} /> */}
                {/* {selectedFile && selectedFile.name} */}
                <Typography variant="body2" component='p' sx={{ pt: { xs: 6, md: 4 }, pb: { xs: 9, md: 2 }, pr: { xs: 1, md: 2 } }}>Выберите фото: </Typography>
-               <input style={{ marginBottom: '56px' }} type="file" onChange={handlePhotoFileChange} />
+               <input style={{ marginBottom: '16px' }} type="file" onChange={handlePhotoFileChange} />
 
                {showDateEmptyError && <Typography variant="body1" component='p' sx={{
                   // pt: { xs: 6, md: 4 }, 

@@ -25,8 +25,6 @@ export type UserProfile = {
    id: number,
    email: string
 }
-
-
 export const regUser = async (user: UserForReg) => {
    const url = new URL(DOMAIN + REGISTER);
    const response = await fetch(url,

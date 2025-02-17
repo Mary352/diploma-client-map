@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/store';
-import { OneBookShort, PosterServer } from '../types/types';
+import { PosterServer } from '../types/types';
 import { LoadingInfo } from './LoadingInfo';
 import { ErrorMessageComp } from './ErrorMessageComp';
 import { getPostersThunk } from '../store/posterSlice';
@@ -12,9 +12,6 @@ import { PosterCard } from './PosterCard';
 type Props = {
    posters: PosterServer[]
 }
-
-
-
 
 export const PostersList = (props: Props) => {
    const { posters } = props

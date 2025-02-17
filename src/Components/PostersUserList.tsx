@@ -2,7 +2,6 @@ import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/store';
-import { OneBookShort } from '../types/types';
 import { LoadingInfo } from './LoadingInfo';
 import { ErrorMessageComp } from './ErrorMessageComp';
 import { getPostersThunk, getUserPostersThunk } from '../store/posterSlice';

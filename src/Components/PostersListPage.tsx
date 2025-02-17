@@ -2,21 +2,23 @@ import { Box, Button, FormControl, InputLabel, NativeSelect, TextField, Typograp
 
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/store';
-import { OneBookShort } from '../types/types';
 import { LoadingInfo } from './LoadingInfo';
 import { ErrorMessageComp } from './ErrorMessageComp';
-import { getPostersThunk, setPostersUser, getItemCategoriesThunk, getPostersFilteredThunk, getPosterStatusesThunk, getNotificationsThunk } from '../store/posterSlice';
+import { getPostersThunk, setPostersUser, getItemCategoriesThunk, getPostersFilteredThunk, getPosterStatusesThunk, getNotificationsThunk, getStatisticsThunk } from '../store/posterSlice';
 import { PosterNotFound } from './PosterNotFound';
 import { PosterCard } from './PosterCard';
 import { PostersList } from './PostersList';
 import { Link } from "react-router-dom";
 import { ErrorPage } from "./ErrorPage";
 import { setIsAuth } from "../store/accountSlice";
+import { objectState } from "../types/commonVars"
+import { getStatistics } from "../server/getPosters";
 
 export const PostersListPage = () => {
 
    // const books = useAppSelector(state => state.books.books)
    const posters = useAppSelector(state => state.posters.posters)
+   const foundStatistics = useAppSelector(state => state.posters.foundStatistics)
    const status = useAppSelector(state => state.posters.status)
    const responseCode = useAppSelector(state => state.posters.responseCode)
 
@@ -120,6 +122,30 @@ export const PostersListPage = () => {
    </FormControl>
 
    useEffect(() => {
+      dispatch(getStatisticsThunk())
+      // getStatistics()
+      //    .then(data => {
+      //       data.message;
+      //       // ! navigate('/posters/my')
+      //       // const state = location.state as LocationState;
+      //       // if (state.isUpdated === 'true') {
+      //       //    id && dispatch(getPosterByIdThunk({ id: id, isUpdated: state.isUpdated }))
+      //       // } else {
+      //       //    id && dispatch(getPosterByIdThunk({ id: id, isUpdated: undefined }))
+      //       // }
+      //       // const isUpdated = new URL(window.location.href).searchParams.get('isupdated')
+      //       // if (isUpdated === 'true') {
+      //       //    id && dispatch(getPosterByIdThunk({ id: id, isUpdated: 'true' }))
+      //       // } else {
+      //       //    id && dispatch(getPosterByIdThunk({ id: id, isUpdated: undefined }))
+      //       // }
+      //       // dispatch(clearUpdInputs())
+
+      //       // dispatch(clearUpdInputs())
+      //       // navigate('/posters/my')
+
+      //    })
+      //    .catch(err => console.log(err))
       dispatch(setPostersUser([]))
 
       // dispatch(getNewBooksThunk())
@@ -164,8 +190,8 @@ export const PostersListPage = () => {
             Объявления
          </Typography>
 
-         {isNotAdmin === 'false' && <p><Link to='/users'>Перейти к управлению пользователями</Link></p>}
-         {isNotAdmin === 'false' && <p style={{ marginBottom: '48px' }}><Link to='/comments'>Перейти к управлению комментариями</Link></p>}
+         {/* {isNotAdmin === 'false' && <p><Link to='/users'>Перейти к управлению пользователями</Link></p>}
+         {isNotAdmin === 'false' && <p style={{ marginBottom: '48px' }}><Link to='/comments'>Перейти к управлению комментариями</Link></p>} */}
 
          <Box sx={{
             paddingX: { xs: 6, md: 6 },
@@ -229,8 +255,8 @@ export const PostersListPage = () => {
                      }}
                   >
                      <MenuItem value='no_itemStatus'>Не выбрано</MenuItem>
-                     <MenuItem value='потеряно'>потеряно</MenuItem>
-                     <MenuItem value='найдено'>найдено</MenuItem>
+                     <MenuItem value={objectState.lost}>{objectState.lost}</MenuItem>
+                     <MenuItem value={objectState.lookingForOwner}>{objectState.lookingForOwner}</MenuItem>
                   </Select>
                </FormControl>}
                {isNotAdmin !== 'true' && <FormControl fullWidth sx={{ pt: 6, pb: 6 }}>
@@ -309,14 +335,31 @@ export const PostersListPage = () => {
             Объявления
          </Typography>
 
-         {isNotAdmin === 'false' && <p><Link to='/users'>Перейти к управлению пользователями</Link></p>}
-         {isNotAdmin === 'false' && <p style={{ marginBottom: '48px' }}><Link to='/comments'>Перейти к управлению комментариями</Link></p>}
+         {/* {isNotAdmin === 'false' && <p><Link to='/users'>Перейти к управлению пользователями</Link></p>}
+         {isNotAdmin === 'false' && <p style={{ marginBottom: '48px' }}><Link to='/comments'>Перейти к управлению комментариями</Link></p>} */}
+
+         {foundStatistics >= 70 && <Typography variant="h3" component="h3"
+            sx={{ pb: 4 }}
+         >
+            У нас {foundStatistics}% людей находят то, что искали
+         </Typography>}
+         {/* <Typography variant="h3" component="h3"
+            sx={{ pb: 4 }}
+         >
+            У нас 86,48% людей находят то, что искали
+         </Typography> */}
+
+         {/* <Typography variant="h3" component="h3"
+            sx={{ pb: 4 }}
+         >
+            У нас {foundStatistics}% людей находят то, что искали
+         </Typography> */}
 
          <Box sx={{
             paddingX: { xs: 6, md: 6 },
             paddingY: { xs: 6, md: 6 },
             bgcolor: 'tertiary.light',
-            mb: 12
+            mb: 11
          }}>
             <form style={{
                display: 'flex',
@@ -374,8 +417,8 @@ export const PostersListPage = () => {
                      }}
                   >
                      <MenuItem value='no_itemStatus'>Не выбрано</MenuItem>
-                     <MenuItem value='потеряно'>потеряно</MenuItem>
-                     <MenuItem value='найдено'>найдено</MenuItem>
+                     <MenuItem value={objectState.lost}>{objectState.lost}</MenuItem>
+                     <MenuItem value={objectState.lookingForOwner}>{objectState.lookingForOwner}</MenuItem>
                   </Select>
                </FormControl>}
                {isNotAdmin !== 'true' && <FormControl fullWidth sx={{ pt: 6, pb: 6 }}>
@@ -392,6 +435,12 @@ export const PostersListPage = () => {
                      }}
                   >
                      <MenuItem value='no_statusName'>Не выбрано</MenuItem>
+                     {/* {posterStatuses.filter((status) => {
+                        if (status === ) {
+                           
+                        }
+                        return status
+                     })} */}
                      {posterStatuses.map((status, i) => <MenuItem key={i} value={status}>{status}</MenuItem>)}
                   </Select>
                </FormControl>}
@@ -413,6 +462,8 @@ export const PostersListPage = () => {
                >Подобрать объявления</Button>
             </form>
          </Box>
+
+
 
          <PostersList posters={posters} />
          {/* <Box

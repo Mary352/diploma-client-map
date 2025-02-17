@@ -1,7 +1,7 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { RootState } from './store'
-import { FilterForPosters, InnerCategoriesResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerNotificationsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerStatusesResponse, OneBookDetailed, OneBookShort, PosterServer, PosterState, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, SearchBooksResponse, SearchBooksThunkParams } from '../types/types'
-import { createPoster, getItemCategories, getNotifications, getPosterById, getPosterDeleteReasons, getPosterStatuses, getPosters, getPostersFiltered, getUserPosters, setCommentsRead, updatePoster } from '../server/getPosters'
+import { FilterForPosters, InnerCategoriesResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerNotificationsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerStatsResponse, InnerStatusesResponse, PosterServer, PosterState, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, SearchBooksThunkParams } from '../types/types'
+import { createPoster, getItemCategories, getNotifications, getPosterById, getPosterDeleteReasons, getPosterStatuses, getPosters, getPostersFiltered, getStatistics, getUserPosters, setCommentsRead, updatePoster } from '../server/getPosters'
 import dayjs from 'dayjs'
 
 const initialState: PosterState = {
@@ -10,6 +10,8 @@ const initialState: PosterState = {
    poster: null,
    responseCode: 0,
    errorMsg: '',
+   isAuth: 'no_info',
+   isNotAdmin: 'no_info',
    itemInput: '',
    breedInput: null,
    isPetInput: false, //!
@@ -27,29 +29,11 @@ const initialState: PosterState = {
    posterDeleteReasons: [],
    rejectReason: '',
    deleteReason: '',
+   rejectUpdMessage: '',
    posterAuthor: null,
    // notificationsInfo: NotificationsInfo[],
    notificationsInfo: [],
-   // bookDetailed: {
-   //    error: '',
-   //    title: '',
-   //    subtitle: '',
-   //    authors: '',
-   //    publisher: '',
-   //    language: '',
-   //    isbn10: '',
-   //    isbn13: '',
-   //    pages: '',
-   //    year: '',
-   //    rating: '',
-   //    desc: '',
-   //    price: '',
-   //    image: '',
-   //    url: '',
-   //    pdf: {}
-   // },
-   // searchInputValue: '',
-   // booksFoundByTitle: [],
+   foundStatistics: 0,
    // total: 0,
    // page: 1,
    // pageQty: 1,
@@ -62,6 +46,11 @@ export const getPostersThunk = createAsyncThunk('posters/getPostersThunk', async
    // const serverPosters = await getPosters();
    // console.log("🚀 ~ file: bookSlice.ts:38 ~ getNewBooksThunk ~ serverPosters:", serverPosters)
    return serverPosters
+})
+
+export const getStatisticsThunk = createAsyncThunk('posters/getStatisticsThunk', async () => {
+   const serverStatisticsInfo: InnerStatsResponse = await getStatistics();
+   return serverStatisticsInfo
 })
 
 export const getPostersFilteredThunk = createAsyncThunk('posters/getPostersFilteredThunk', async (filterForPosters: FilterForPosters) => {
@@ -93,8 +82,8 @@ export const getPosterDeleteReasonsThunk = createAsyncThunk('posters/getPosterDe
    return serverPosterDeleteReasons
 })
 
-export const getPosterByIdThunk = createAsyncThunk('posters/getPosterByIdThunk', async (id: string) => {
-   const serverPoster: InnerOnePosterResponse = await getPosterById(id);
+export const getPosterByIdThunk = createAsyncThunk('posters/getPosterByIdThunk', async ({ id, isUpdated }: { id: string, isUpdated?: string }) => {
+   const serverPoster: InnerOnePosterResponse = await getPosterById(id, isUpdated);
    return serverPoster
 })
 
@@ -124,6 +113,9 @@ export const postersSlice = createSlice({
    reducers: {
       setResponseCode: (state, action: PayloadAction<number>) => {
          return { ...state, responseCode: action.payload }
+      },
+      clearUpdInputs: (state) => {
+         return { ...state, objectCategoryInput: '', descriptionInput: '', phoneInput: '', breedInput: '' }
       },
       setItem: (state, action: PayloadAction<string>) => {
          return { ...state, itemInput: action.payload }
@@ -183,16 +175,32 @@ export const postersSlice = createSlice({
          .addCase(getPostersThunk.rejected, (state) => {
             return { ...state, status: 'rejected' }
          })
+         .addCase(getStatisticsThunk.pending, (state) => {
+            return { ...state, status: 'loading' }
+         })
+         .addCase(getStatisticsThunk.fulfilled, (state, action: PayloadAction<InnerStatsResponse>) => {
+            if (action.payload.resCode === 200) {
+               return { ...state, foundStatistics: action.payload.foundStatistics, responseCode: 200, status: 'fulfilled' }
+            }
+            else {
+               return { ...state, errorMsg: action.payload.err, responseCode: action.payload.resCode, status: 'fulfilled' }
+            }
+         })
+         .addCase(getStatisticsThunk.rejected, (state) => {
+            return { ...state, status: 'rejected' }
+         })
          .addCase(getPosterByIdThunk.pending, (state) => {
             return { ...state, status: 'loading' }
          })
          .addCase(getPosterByIdThunk.fulfilled, (state, action: PayloadAction<InnerOnePosterResponse>) => {
             // return { ...state, poster: action.payload, status: 'fulfilled' }
             if (action.payload.resCode === 200) {
-               return { ...state, posterAuthor: action.payload.posterAuthor, rejectReason: action.payload.rejectReason || '', deleteReason: action.payload.deleteReason || '', poster: action.payload.poster, responseCode: 200, status: 'fulfilled' }
+               const { rejectReason, deleteReason, rejectUpdMessage, poster, accountInfo } = action.payload
+               return { ...state, rejectReason: rejectReason || '', rejectUpdMessage: rejectUpdMessage || '', isAuth: accountInfo.isAuth, isNotAdmin: accountInfo.isNotAdmin, deleteReason: deleteReason || '', breedInput: poster?.breed || '', objectCategoryInput: poster?.ObjectCategories?.category || '', descriptionInput: poster?.description || '', phoneInput: poster?.phone || '', poster: poster, responseCode: 200, status: 'fulfilled' }
             }
             else {
-               return { ...state, errorMsg: action.payload.err, responseCode: action.payload.resCode, status: 'fulfilled' }
+               const { accountInfo } = action.payload
+               return { ...state, isAuth: accountInfo.isAuth, isNotAdmin: accountInfo.isNotAdmin, errorMsg: action.payload.err, responseCode: action.payload.resCode, status: 'fulfilled' }
             }
          })
          .addCase(getPosterByIdThunk.rejected, (state) => {
@@ -222,8 +230,8 @@ export const postersSlice = createSlice({
          })
          .addCase(getItemCategoriesThunk.fulfilled, (state, action: PayloadAction<InnerCategoriesResponse>) => {
             if (action.payload.resCode === 200) {
-               const { categories } = action.payload
-               return { ...state, itemCategories: categories.itemCategories, petCategories: categories.petCategories, responseCode: 200, status: 'fulfilled' }
+               const { categories, accountInfo } = action.payload
+               return { ...state, isAuth: accountInfo.isAuth, isNotAdmin: accountInfo.isNotAdmin, itemCategories: categories.itemCategories, petCategories: categories.petCategories, responseCode: 200, status: 'fulfilled' }
                // return { ...state, posterCategories: action.payload.categories, responseCode: 200, status: 'fulfilled' }
             }
             else {
@@ -368,6 +376,6 @@ export const postersSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setResponseCode, setItem, setBreed, setIsPet, setObjectCategory, setDescription, setItemStatus, setDateOfAction, setPhotoFile, setPhone, setAddress, setPostersUser } = postersSlice.actions
+export const { setResponseCode, setItem, setBreed, setIsPet, setObjectCategory, setDescription, setItemStatus, setDateOfAction, setPhotoFile, setPhone, setAddress, setPostersUser, clearUpdInputs } = postersSlice.actions
 
 export const postersReducer = postersSlice.reducer

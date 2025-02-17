@@ -1,6 +1,6 @@
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { RootState } from './store'
-import { CommentState, CommentToAdd, CommentToUpd, FilterForPosters, InnerCategoriesResponse, InnerCommentsResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerResponse, InnerStatusesResponse, OneBookDetailed, OneBookShort, PosterServer, PosterState, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, SearchBooksResponse, SearchBooksThunkParams } from '../types/types'
+import { CommentState, CommentToAdd, CommentToUpd, FilterForPosters, InnerCategoriesResponse, InnerCommentsResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerResponse, InnerStatusesResponse, PosterServer, PosterState, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, SearchBooksThunkParams } from '../types/types'
 import dayjs from 'dayjs'
 import { addComment, addComplaint, approveComment, deleteComment, getAllComments, getCommentsForPoster, updateComment } from '../server/getComments'
 

@@ -1,10 +1,13 @@
 import { Box, Button, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/store";
-import { handleAuthThunk, setPhone, setEmail, setName, setPassword, setAddress, regUserThunk, setResponseCode, setErrorMsg } from "../store/accountSlice";
+import { handleAuthThunk, setPhoneAcc, setEmail, setName, setPassword, setAddress, regUserThunk, setResponseCode, setErrorMsg } from "../store/accountSlice";
 import { useNavigate } from "react-router-dom";
 import { YMaps, Map, SearchControl } from "@pbe/react-yandex-maps";
 import { MapWithSearch } from "./MapWithSearch";
+import { isPhoneValid } from "../types/commonFunctions";
+import { PhoneInput } from "./PhoneInput";
+import { HELPER_PHONE_TEXT } from "../types/commonVars";
 
 export const Register = () => {
    // const [email, setEmail] = useState('');
@@ -12,7 +15,6 @@ export const Register = () => {
    // ---YMaps
    const [selectedAddressCoords, setSelectedAddressCoords] = useState<number[]>([]);
    const [selectedTextAddress, setSelectedTextAddress] = useState<string>('');
-
 
    const email = useAppSelector(state => state.account.emailInput)
    const pass = useAppSelector(state => state.account.passInput)
@@ -24,6 +26,9 @@ export const Register = () => {
 
    const [isValidEmail, setIsValidEmail] = useState(true);
    const [isValidEmailText, setIsValidEmailText] = useState('');
+   const [isValidPhone, setIsValidPhone] = useState(true);
+   const [isValidPhoneText, setIsValidPhoneText] = useState('');
+   const [showAddressEmptyError, setShowAddressEmptyError] = useState(false)
 
    const errorMsg = useAppSelector(state => state.account.errorMsg)
 
@@ -33,13 +38,14 @@ export const Register = () => {
 
    // const [errorTextEmail, setErrorTextEmail] = useState('');
    const maxLength60 = 60;
-   const maxLength18 = 18;
+   // const maxLength18 = 18;
    const maxLength175 = 175;
    // const emailMaxLength = 3;
    // const emailCharacterCount = email.length;
    // const emailHelperText = `${emailCharacterCount} / ${emailMaxLength} символов`
 
    const emailRegex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+   // const phoneRegex = /^(?:\+|\d)[\d]{9,}\d$/;
 
    const handleSearchChange = (event: any) => {
       // setAddress(event.target?.value);
@@ -63,9 +69,12 @@ export const Register = () => {
          console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ typeof coords:", typeof coords)
          console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ typeof selectedAddressCoords:", typeof selectedAddressCoords)
          console.log("🚀 ~ file: MapWithSearch.tsx:32 ~ handleSearchChange ~ selectedAddressCoords:", selectedAddressCoords)
+
+         setShowAddressEmptyError(false)
       }
       console.log('--------1----------')
    };
+
 
    const dispatch = useAppDispatch()
 
@@ -75,9 +84,23 @@ export const Register = () => {
       dispatch(setErrorMsg(''))
    };
 
+   const handleEmailFocus = () => {
+      errorMsg && dispatch(setErrorMsg(''))
+      setIsValidEmailText('')
+   };
+
+   const handlePhoneFocus = () => {
+      errorMsg && dispatch(setErrorMsg(''))
+      setIsValidPhoneText('')
+   };
+
    const isEmailValid = (email: string) => {
       return emailRegex.test(email);
    };
+
+   // const isPhoneValid = (phone: string) => {
+   //    return phoneRegex.test(phone);
+   // };
 
    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       // const inputValue = e.target.value;
@@ -103,11 +126,18 @@ export const Register = () => {
       dispatch(setName(e.target.value))
    }
    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      dispatch(setPhone(e.target.value))
+      const inputValue = e.target.value;
+
+      dispatch(setPhoneAcc(inputValue))
+
+      if (isPhoneValid(inputValue)) {
+         setIsValidPhone(isPhoneValid(inputValue))
+         setIsValidPhoneText('')
+      }
    }
-   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      dispatch(setAddress(e.target.value))
-   }
+   // const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+   //    dispatch(setAddress(e.target.value))
+   // }
 
    const handleAuth = () => {
       navigate('/signin')
@@ -115,8 +145,10 @@ export const Register = () => {
       dispatch(setEmail(''))
       dispatch(setPassword(''))
       dispatch(setName(''))
-      dispatch(setPhone(''))
+      dispatch(setPhoneAcc(''))
       dispatch(setAddress(''))
+
+      dispatch(setErrorMsg(''))
    }
 
    // const handleReg = () => {
@@ -136,27 +168,55 @@ export const Register = () => {
       if (!isEmailValid(email)) {
          setIsValidEmail(false);
          setIsValidEmailText('Введите правильный email')
+         return
       }
-      else {
-         setIsValidEmail(true);
-         setIsValidEmailText('')
 
-         dispatch(regUserThunk({
-            email: email,
-            password: pass,
-            name: name,
-            phone: phone,
-            address: selectedTextAddress,
-            coord0: '' + selectedAddressCoords[0],
-            coord1: '' + selectedAddressCoords[1]
-         }))
+      console.log('!!!!!!!! PHONE - ', phone)
+
+      if (!isPhoneValid(phone)) {
+         setIsValidPhone(false);
+         setIsValidPhoneText(HELPER_PHONE_TEXT)
+         return
       }
+
+      if (!selectedTextAddress) {
+         setShowAddressEmptyError(true)
+         return
+      }
+
+      setIsValidEmail(true);
+      setIsValidEmailText('')
+
+      setIsValidPhone(true);
+      setIsValidPhoneText('')
+
+      dispatch(regUserThunk({
+         email: email,
+         password: pass,
+         name: name,
+         phone: phone,
+         address: selectedTextAddress,
+         coord0: '' + selectedAddressCoords[0],
+         coord1: '' + selectedAddressCoords[1]
+      }))
+
    }
 
    useEffect(() => {
       // if (isAuthorizedState || isAuthorized === 'true') {
       //    navigate('/')
       // }
+      // dispatch(setPhone(''))
+      dispatch(setEmail(''))
+      dispatch(setPassword(''))
+      dispatch(setName(''))
+      dispatch(setPhoneAcc(''))
+      dispatch(setAddress(''))
+
+      if (responseCode === 0 || responseCode === 200 || responseCode === 201) {
+         dispatch(setErrorMsg(''))
+      }
+
 
       if (responseCode === 201 || isAuthorizedState || isAuthorized === 'true') {
          navigate('/signin')
@@ -165,7 +225,7 @@ export const Register = () => {
          dispatch(setEmail(''))
          dispatch(setPassword(''))
          dispatch(setName(''))
-         dispatch(setPhone(''))
+         // dispatch(setPhone(''))
          dispatch(setAddress(''))
       }
 
@@ -254,8 +314,9 @@ export const Register = () => {
                required
                onFocus={handleFocus}
                inputProps={{ maxLength: maxLength60 }}
-               label="Имя (ФИО)" variant="outlined" value={name} onChange={handleNameChange} />
-            <TextField sx={{
+               label="Имя" variant="outlined" value={name} onChange={handleNameChange} />
+            <PhoneInput page="register" isValidPhone={isValidPhone} isValidPhoneText={isValidPhoneText} setIsValidPhone={setIsValidPhone} setIsValidPhoneText={setIsValidPhoneText} />
+            {/* <TextField sx={{
                pb: 6,
                width: '100%',
                // width: { xs: '100%', md: '80%' },
@@ -265,8 +326,11 @@ export const Register = () => {
                required
                onFocus={handleFocus}
                inputProps={{ maxLength: maxLength18 }}
-               placeholder="375291285623"
+               placeholder="+375291285623"
+               error={!isValidPhone}
+               helperText={isValidPhoneText}
                label="Телефон" variant="outlined" value={phone} onChange={handlePhoneChange} />
+             */}
             {/* <TextField sx={{
 
                pb: 14,
@@ -296,6 +360,13 @@ export const Register = () => {
             </YMaps> */}
 
             <MapWithSearch handleSearchChange={handleSearchChange} selectedTextAddress={selectedTextAddress} />
+            {showAddressEmptyError && <Typography variant="body1" component='p' sx={{
+               // pt: { xs: 6, md: 4 }, 
+               pb: { xs: 9, md: 2 },
+               pr: { xs: 1, md: 2 },
+               color: 'red'
+            }}>Выберите свой адрес</Typography>}
+
             <Button variant='contained' sx={{
                width: '100%',
                marginY: 3,

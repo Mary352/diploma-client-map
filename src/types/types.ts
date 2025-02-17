@@ -1,32 +1,15 @@
 import dayjs from "dayjs"
 import { RootState } from "../store/store"
 
-export type OneBookShort = {
-   title: string,
-   subtitle: string,
-   isbn13: string,
-   price: string,
-   image: string,
-   url: string
+export type MapWithPlacemarkProps = {
+   address: string,
+   coord0: string,
+   coord1: string,
 }
 
-export type OneBookDetailed = {
-   error: string,
-   title: string,
-   subtitle: string,
-   authors: string,
-   publisher: string,
-   language: string,
-   isbn10: string,
-   isbn13: string,
-   pages: string,
-   year: string,
-   rating: string,
-   desc: string,
-   price: string,
-   image: string,
-   url: string,
-   pdf: Object
+export type MapWithSearchProps = {
+   handleSearchChange: (event: any) => void,
+   selectedTextAddress: string
 }
 
 export type SearchBooksThunkParams = {
@@ -36,41 +19,17 @@ export type SearchBooksThunkParams = {
 
 
 // Initial state types
-export type BookState = {
-   books: OneBookShort[],
-   bookDetailed: OneBookDetailed,
-   searchInputValue: string,
-   booksFoundByTitle: OneBookShort[],
-   total: number,
-   page: number,
-   pageQty: number,
-   // booksPerPage: number
-   status: string
-}
+
 
 
 
 // Response types
-export type BooksResponse = {
-   error: string,
-   total: string,
-   books: OneBookShort[]
-};
 
-export type SearchBooksResponse = {
-   error: string,
-   total: string,
-   page: string,
-   books: OneBookShort[]
-};
+
+
 
 // Component Props
-export type BookShortProps = {
-   book: OneBookShort
-};
-export type OneBookPageProps = {
-   book: OneBookDetailed
-};
+
 
 export type SearchInputProps = {
    tablet?: boolean,
@@ -162,6 +121,10 @@ export type PosterServer = {
    "PosterStatuses": {
       "statusName": string
    } | null
+   Users: {
+      name: string;
+      email: string;
+   } | null;
 }
 export type CommentServer = {
    id: number;
@@ -219,6 +182,8 @@ export type PosterState = {
    poster: PosterServer | null,
    responseCode: number,
    errorMsg: string,
+   isAuth: 'no_info' | boolean,
+   isNotAdmin: 'no_info' | boolean,
    itemInput: string,
    breedInput: null | string,
    isPetInput: boolean,
@@ -236,8 +201,10 @@ export type PosterState = {
    posterDeleteReasons: string[],
    rejectReason: string | undefined,
    deleteReason: string | undefined,
+   rejectUpdMessage: string | undefined,
    posterAuthor: User | null,
    notificationsInfo: NotificationsInfo[],
+   foundStatistics: number,
    // bookDetailed: OneBookDetailed,
    // searchInputValue: string,
    // booksFoundByTitle: OneBookShort[],
@@ -343,6 +310,10 @@ export type InnerCategoriesResponse = {
    resCode: number,
    categories: { petCategories: string[], itemCategories: string[] },
    err: string,
+   accountInfo: {
+      isAuth: boolean,
+      isNotAdmin: boolean,
+   },
 }
 export type InnerStatusesResponse = {
    resCode: number,
@@ -354,6 +325,15 @@ export type InnerDeleteReasonsResponse = {
    resCode: number,
    deleteReasons: string[],
    err: string,
+}
+
+export type serverStatsResponse = {
+   error?: string
+   message?: number,
+   accountInfo: {
+      "isAuth": boolean,
+      "isNotAdmin": boolean
+   }
 }
 
 export type serverPostersResponse = {
@@ -370,6 +350,12 @@ export type InnerPostersResponse = {
    err: string,
 }
 
+export type InnerStatsResponse = {
+   resCode: number,
+   foundStatistics: number,
+   err: string,
+}
+
 export type InnerCommentsResponse = {
    resCode: number,
    comments: CommentServer[],
@@ -379,6 +365,7 @@ export type serverPosterResponse = {
    error?: string,
    rejectReason?: string,
    deleteReason?: string,
+   rejectUpdMessage?: string,
    message?: PosterServer,
    "accountInfo": {
       "isAuth": boolean,
@@ -407,6 +394,7 @@ export type InnerOnePosterResponse = {
    poster: PosterServer | null,
    rejectReason?: string,
    deleteReason?: string,
+   rejectUpdMessage?: string,
    posterAuthor: User | null,
    err: string,
    accountInfo: {

@@ -172,28 +172,27 @@ export const Comment = ({ comment, page }: CommentProps) => {
             <DeleteIcon sx={{ fontSize: 'medium' }} />
          </IconButton>
       </Tooltip>
-
    </>
 
    const AdminManageCommentTools = <>
-      <Tooltip title="Одобрить">
+      {page === 'comments' && <Tooltip title="Одобрить">
          <IconButton onClick={handleApproveComment} sx={{ p: 0, pr: 2 }}>
             <VerifiedIcon sx={{ fontSize: 'medium', color: 'green' }} />
          </IconButton>
-      </Tooltip>
+      </Tooltip>}
 
       <Tooltip title="Удалить">
          <IconButton onClick={handleDeleteComment} sx={{ p: 0, pr: 2 }}>
             <DeleteIcon sx={{ fontSize: 'medium' }} />
          </IconButton>
       </Tooltip>
-      <Typography
+      {page === 'comments' && <Typography
          // maxWidth='200px' 
          variant="body1" component="span"
          sx={{ p: 0, pr: 2, color: 'red', alignSelf: 'center' }}
       >
          {comment.complaintsCount}
-      </Typography>
+      </Typography>}
    </>
 
    const CommentText = <Typography
@@ -278,7 +277,7 @@ export const Comment = ({ comment, page }: CommentProps) => {
                {(currentUserId !== ('' + comment.userId)) && (isAuth === 'true') && (isNotAdmin === 'true') && (!comment.approved) && ComplaintIcon}
                {/* {(currentUserId !== ('' + comment.userId)) && (isAuth === 'true') && (isNotAdmin === 'true') && comment.approved && VerifiedBadge} */}
                {(currentUserId === ('' + comment.userId)) && (isAuth === 'true') && (isNotAdmin === 'true') && ManageCommentTools}
-               {(isAuth === 'true') && (isNotAdmin === 'false') && (page === 'comments') && AdminManageCommentTools}
+               {(isAuth === 'true') && (isNotAdmin === 'false') && AdminManageCommentTools}
                {/* <Tooltip title="Пожаловаться">
                   <IconButton onClick={handleClickOpen} sx={{ p: 0, pr: 2 }}>
                      <ReportProblemOutlinedIcon sx={{

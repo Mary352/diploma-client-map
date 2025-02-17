@@ -1,5 +1,5 @@
 import { DOMAIN, posterStatuses } from "../types/commonVars";
-import { FilterForPosters, InnerCategoriesResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerNotificationsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerStatusesResponse, PosterServer, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, ServerCategoriesResponse, User, serverCreatePosterResponse, serverNotificationsResponse, serverPosterResponse, serverPostersResponse, } from "../types/types";
+import { FilterForPosters, InnerCategoriesResponse, InnerCreatePosterResponse, InnerDeleteReasonsResponse, InnerNotificationsResponse, InnerOnePosterResponse, InnerPostersResponse, InnerStatsResponse, InnerStatusesResponse, PosterServer, PosterToCreate, PosterToCreateWithCoords, PosterToUpdate, ServerCategoriesResponse, User, serverCreatePosterResponse, serverNotificationsResponse, serverPosterResponse, serverPostersResponse, serverStatsResponse, } from "../types/types";
 import { getOneUser } from "./getUsers";
 
 
@@ -14,7 +14,9 @@ const POSTERS_CREATE = "/posters/create";
 const POSTERS_UPDATE = "/posters/upd";
 const POSTERS_DELETE = "/posters/del";
 const POSTERS_DECIDE = "/posters/decide";
+const POSTERS_DECIDE_UPD = "/posters/decideupdate";
 const POSTERS_NOTIFICATIONS = "/posters/getnotifications";
+const POSTERS_STATISTICS = "/posters/getstatistics";
 
 const COMMENTS_SET_READ = "/comments/setcommentsread";
 // const SEARCH = "/search";
@@ -61,6 +63,56 @@ export const getPosters = async () => {
       const obj: InnerPostersResponse = {
          resCode: response.status,
          posters: [],
+         err: posters.error || 'Произошла ошибка. Попробуйте позже',
+      };
+
+      return obj;
+   }
+};
+
+export const getStatistics = async () => {
+   const postersUrl = new URL(DOMAIN + POSTERS_STATISTICS);
+
+   const accessToken = localStorage.getItem('accessToken');
+   console.log("🚀 ~ file: getPosters.ts:13 ~ getPosters ~ accessToken:", accessToken)
+
+   // let response;
+   // if (accessToken) {
+   const response = await fetch(postersUrl, {
+      // headers: {
+      //    'Content-Type': 'application/json',
+      //    // 'Cookie': `accessToken=${accessToken}`,
+      // },
+      credentials: 'include',
+   });
+   // }
+   // else {
+   //    response = await fetch(postersUrl);
+   // }
+   // console.log("🚀 ~ file: getPosters.ts:25 ~ getPosters ~ response:", response)
+
+   const posters: serverStatsResponse = await response.json();
+   console.log("🚀 ~ file: getPosters.ts:14 ~ getPosters ~ posters:", posters.message)
+   // console.log("🚀 ~ file: getBooks.ts:56 ~ getPosters ~ posters:", posters.message)
+   localStorage.setItem('isAuth', `${posters.accountInfo.isAuth}`)
+   localStorage.setItem('isNotAdmin', `${posters.accountInfo.isNotAdmin}`)
+
+   if (response.status === 200) {
+      console.log("🚀 ~ file: getPosters.ts:13 ~ getPosters ~ response.status:", response.status)
+
+      const obj: InnerStatsResponse = {
+         resCode: response.status,
+         foundStatistics: posters.message || 0,
+         err: ''
+      };
+
+      return obj
+   }
+   else {
+      const obj: InnerStatsResponse = {
+         resCode: response.status,
+         foundStatistics: 0,
+         // posters: [],
          err: posters.error || 'Произошла ошибка. Попробуйте позже',
       };
 
@@ -220,13 +272,19 @@ export const getItemCategories = async () => {
    const posters: ServerCategoriesResponse = await response.json();
    console.log("🚀 ~ file: getPosters.ts:14 ~ getPosters ~ posters:", posters)
    // console.log("🚀 ~ file: getBooks.ts:56 ~ getPosters ~ posters:", posters.message)
+
+   localStorage.setItem('isAuth', '' + posters.accountInfo.isAuth)
+   localStorage.setItem('isNotAdmin', '' + posters.accountInfo.isNotAdmin)
+
    if (response.status === 200) {
       console.log("🚀 ~ file: getPosters.ts:13 ~ getPosters ~ response.status:", response.status)
 
       const obj: InnerCategoriesResponse = {
          resCode: response.status,
          categories: posters.message || {},
-         err: ''
+         err: '',
+         accountInfo: posters.accountInfo
+
       };
 
       return obj
@@ -236,6 +294,7 @@ export const getItemCategories = async () => {
          resCode: response.status,
          categories: { petCategories: [], itemCategories: [] },
          err: posters.error || 'Произошла ошибка. Попробуйте позже',
+         accountInfo: posters.accountInfo
       };
 
       return obj;
@@ -314,8 +373,11 @@ export const getPosterDeleteReasons = async () => {
    }
 };
 
-export const getPosterById = async (id: string) => {
+export const getPosterById = async (id: string, isUpdated?: string) => {
+   // if (limit) postsUrl.searchParams.set("limit", String(limit));
    const posterUrl = new URL(DOMAIN + POSTERS + `/${id}`);
+   if (isUpdated === 'true') posterUrl.searchParams.set("updated", String(isUpdated));
+
    let posterAuthor: User | null = null;
 
    const response = await fetch(posterUrl, {
@@ -342,6 +404,7 @@ export const getPosterById = async (id: string) => {
          posterAuthor: posterAuthor,
          rejectReason: poster.rejectReason || '',
          deleteReason: poster.deleteReason || '',
+         rejectUpdMessage: poster.rejectUpdMessage || '',
          err: '',
          accountInfo: {
             isAuth: poster.accountInfo.isAuth,
@@ -451,6 +514,110 @@ export const publishPoster = async (id: string | undefined) => {
    console.log("🚀 ~ file: getPosters.ts:157 ~ createPoster ~ result:", result)
 
    if (response.status === 200) {
+      console.log("🚀 ~ file: getPosters.ts:13 ~ getPosters ~ response.status:", response.status)
+
+      localStorage.setItem('isAuth', `${result.accountInfo.isAuth}`)
+      localStorage.setItem('isNotAdmin', `${result.accountInfo.isNotAdmin}`)
+      console.log("🚀 ~ file: getPosters.ts:164 ~ createPoster ~ result.accountInfo.isAuth:", result.accountInfo.isAuth)
+
+      const obj: InnerCreatePosterResponse = {
+         resCode: response.status,
+         message: result.message || '',
+         isAuth: result.accountInfo.isAuth,
+         isNotAdmin: result.accountInfo.isNotAdmin,
+         err: ''
+      };
+
+      return obj
+   }
+   else {
+      localStorage.setItem('isAuth', `${result.accountInfo.isAuth}`)
+      localStorage.setItem('isNotAdmin', `${result.accountInfo.isNotAdmin}`)
+
+      const obj: InnerCreatePosterResponse = {
+         resCode: response.status,
+         message: '',
+         isAuth: result.accountInfo.isAuth,
+         isNotAdmin: result.accountInfo.isNotAdmin,
+         err: result.error || 'Произошла ошибка. Попробуйте позже',
+      };
+
+      return obj;
+   }
+   // return result;
+}
+
+export const publishUpdatedPoster = async (id: string | undefined) => {
+   const url = new URL(DOMAIN + POSTERS_DECIDE_UPD);
+   const dataToUpd = {
+      posterId: id,
+      posterStatus: posterStatuses.published,
+      // reason
+   }
+
+   const response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(dataToUpd),
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include',
+   });
+   // serverCreatePosterResponse = serverUpdatePosterResponse
+   const result: serverCreatePosterResponse = await response.json();
+   console.log("🚀 ~ file: getPosters.ts:157 ~ createPoster ~ result:", result)
+
+   if (response.status === 200) {
+      console.log("🚀 ~ file: getPosters.ts:13 ~ getPosters ~ response.status:", response.status)
+
+      localStorage.setItem('isAuth', `${result.accountInfo.isAuth}`)
+      localStorage.setItem('isNotAdmin', `${result.accountInfo.isNotAdmin}`)
+      console.log("🚀 ~ file: getPosters.ts:164 ~ createPoster ~ result.accountInfo.isAuth:", result.accountInfo.isAuth)
+
+      const obj: InnerCreatePosterResponse = {
+         resCode: response.status,
+         message: result.message || '',
+         isAuth: result.accountInfo.isAuth,
+         isNotAdmin: result.accountInfo.isNotAdmin,
+         err: ''
+      };
+
+      return obj
+   }
+   else {
+      localStorage.setItem('isAuth', `${result.accountInfo.isAuth}`)
+      localStorage.setItem('isNotAdmin', `${result.accountInfo.isNotAdmin}`)
+
+      const obj: InnerCreatePosterResponse = {
+         resCode: response.status,
+         message: '',
+         isAuth: result.accountInfo.isAuth,
+         isNotAdmin: result.accountInfo.isNotAdmin,
+         err: result.error || 'Произошла ошибка. Попробуйте позже',
+      };
+
+      return obj;
+   }
+   // return result;
+}
+
+export const rejectUpdatedPoster = async (id: string | undefined) => {
+   const url = new URL(DOMAIN + POSTERS_DECIDE_UPD);
+   const dataToUpd = {
+      posterId: id,
+      posterStatus: posterStatuses.updateRejected,
+      // reason: reason
+   }
+
+   const response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(dataToUpd),
+      headers: { "Content-Type": "application/json" },
+      credentials: 'include',
+   });
+   // serverCreatePosterResponse = serverUpdatePosterResponse
+   const result: serverCreatePosterResponse = await response.json();
+   console.log("🚀 ~ file: getPosters.ts:157 ~ createPoster ~ result:", result)
+
+   if (response.status === 201) {
       console.log("🚀 ~ file: getPosters.ts:13 ~ getPosters ~ response.status:", response.status)
 
       localStorage.setItem('isAuth', `${result.accountInfo.isAuth}`)

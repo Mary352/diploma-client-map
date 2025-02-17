@@ -6,11 +6,17 @@ import Typography from '@mui/material/Typography';
 import { Box, Button, CardActionArea, CardActions, Grid } from '@mui/material';
 import { PosterCardProps } from '../types/types';
 import { useNavigate } from 'react-router-dom';
-import { DOMAIN, UPLOAD } from '../types/commonVars';
+import { DOMAIN, UPLOAD, posterStatuses } from '../types/commonVars';
+import { useAppSelector } from '../store/store';
 
 export const PosterCard = ({ poster }: PosterCardProps) => {
    console.log('Image: ', DOMAIN + UPLOAD + '/' + poster.photoLink)
-   const isNotAdmin = localStorage.getItem('isNotAdmin')
+   // const isNotAdmin = localStorage.getItem('isNotAdmin')
+   const isNotAdminStorage = localStorage.getItem('isNotAdmin')
+   const status = useAppSelector(state => state.posters.status)
+   const isAuth = useAppSelector(state => state.posters.isAuth)
+   const isNotAdmin = useAppSelector(state => state.posters.isNotAdmin)
+
    const currentUserId = localStorage.getItem('userId')
 
    // const BOOK_TEST = {
@@ -53,7 +59,14 @@ export const PosterCard = ({ poster }: PosterCardProps) => {
          }}
       >
 
-         <CardActionArea onClick={() => { navigate(`/posters/${poster.id}`) }}
+         <CardActionArea onClick={() => {
+            if (poster.PosterStatuses?.statusName === posterStatuses.updated) {
+               navigate(`/posters/${poster.id}?isupdated=true`)
+            } else {
+               navigate(`/posters/${poster.id}`)
+            }
+
+         }}
             sx={{
                height: '100%',
                width: '100%',
@@ -157,7 +170,7 @@ export const PosterCard = ({ poster }: PosterCardProps) => {
                      // flexDirection: 'row',
                      // justifyContent: 'space-between'
                   }}>
-                  {(isNotAdmin === 'false' || Number(currentUserId) === poster.userId) &&
+                  {(isNotAdmin === false || (isNotAdmin === 'no_info' && isNotAdminStorage === 'false') || (isAuth !== false && Number(currentUserId) === poster.userId)) &&
                      <Typography variant="body2" component='p'
                         sx={{
                            pt: { xs: 6, md: 8 },

@@ -27,7 +27,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { Button, Drawer, SvgIcon, TextField } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../store/store';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import Slide from '@mui/material/Slide';
@@ -66,6 +66,37 @@ export const Header = () => {
       }
    }
 
+   const navigateToUsers = () => {
+      const isAuth = localStorage.getItem('isAuth')
+      const isNotAdmin = localStorage.getItem('isNotAdmin')
+      console.log("🚀🚀 ~ file: Header.tsx:52 ~ navigateToAccount ~ isAuth:", isAuth)
+
+      if (isAuth === 'true' && isNotAdmin === 'false') {
+         navigate(`/users`)
+      }
+      else {
+         navigate('/signin')
+      }
+   }
+
+   const navigateToComments = () => {
+      const isAuth = localStorage.getItem('isAuth')
+      const isNotAdmin = localStorage.getItem('isNotAdmin')
+      console.log("🚀🚀 ~ file: Header.tsx:52 ~ navigateToAccount ~ isAuth:", isAuth)
+
+      if (isAuth === 'true' && isNotAdmin === 'false') {
+         navigate(`/comments`)
+      }
+      else {
+         navigate('/signin')
+      }
+
+      // !testing anchor links
+      // navigate(`/posters/5#commentsSection`)
+      // navigate('/tp', { state: { tab: '3' } });
+      // navigate('/posters/5', { state: { tab: '3' } });
+   }
+
    const handleClickOpenNotifications = () => {
       setOpenNotifications(true);
    };
@@ -81,6 +112,15 @@ export const Header = () => {
    const NotificationsIconWithBadge = <Badge color="error" variant="dot">
       <NotificationsIcon sx={{ fill: '#313037' }} />
    </Badge>
+
+   const AdminPanel = <>
+      <Button sx={{ color: 'system.main', }} onClick={navigateToComments}>
+         Комментарии
+      </Button>
+      <Button sx={{ color: 'system.main', }} onClick={navigateToUsers}>
+         Пользователи
+      </Button>
+   </>
 
    return (
       <Box sx={{
@@ -98,7 +138,8 @@ export const Header = () => {
          paddingY: 2
       }}
       >
-
+         {/* ! testing anchor links 2 */}
+         {/* <Link to="/posters/5#commentsSection">commentsSection</Link> */}
          <Box sx={{ alignSelf: 'center' }}>
             <Button onClick={() => navigate('/')} sx={{
                width: '100%',
@@ -124,6 +165,9 @@ export const Header = () => {
                display: 'flex',
                // alignSelf: 'center'
             }}>
+            {localStorage.getItem('isAuth') === 'true' &&
+               localStorage.getItem('isNotAdmin') === 'false' && AdminPanel
+            }
             {localStorage.getItem('isAuth') === 'true' && localStorage.getItem('isNotAdmin') === 'true' &&
                <><Button onClick={handleClickOpenNotifications}>
                   {notificationsInfo.length > 0 ? NotificationsIconWithBadge : <NotificationsIcon sx={{ fill: '#313037' }} />}

@@ -103,7 +103,7 @@ export const accountSlice = createSlice({
       setName: (state, action: PayloadAction<string>) => {
          return { ...state, nameInput: action.payload }
       },
-      setPhone: (state, action: PayloadAction<string>) => {
+      setPhoneAcc: (state, action: PayloadAction<string>) => {
          return { ...state, phoneInput: action.payload }
       },
       setAddress: (state, action: PayloadAction<string>) => {
@@ -166,6 +166,6 @@ export const accountSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { setResponseCode, setErrorMsg, setIsAuth, setEmail, setPassword, setName, setPhone, setAddress } = accountSlice.actions
+export const { setResponseCode, setErrorMsg, setIsAuth, setEmail, setPassword, setName, setPhoneAcc, setAddress } = accountSlice.actions
 
 export const accountReducer = accountSlice.reducer
