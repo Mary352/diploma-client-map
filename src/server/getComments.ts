@@ -15,7 +15,12 @@ export const addComment = async (comment: CommentToAdd) => {
       {
          method: 'POST',
          body: JSON.stringify(comment),
-         headers: { "Content-Type": "application/json" },
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         },
          credentials: 'include',
       });
    const result: serverCommentsResponse = await response.json();
@@ -91,7 +96,12 @@ export const addComplaint = async (commentId: number) => {
       {
          method: 'POST',
          body: JSON.stringify({ commentId: commentId }),
-         headers: { "Content-Type": "application/json" },
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         },
          credentials: 'include',
       });
    const result: serverCommentsResponse = await response.json();
@@ -133,7 +143,12 @@ export const deleteComment = async (commentId: number) => {
       {
          method: 'POST',
          // body: JSON.stringify({ commentId: commentId }),
-         headers: { "Content-Type": "application/json" },
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         },
          credentials: 'include',
       });
    const result: serverCommentsResponse = await response.json();
@@ -173,7 +188,12 @@ export const approveComment = async (commentId: number) => {
    const response = await fetch(url,
       {
          method: 'POST',
-         headers: { "Content-Type": "application/json" },
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         },
          credentials: 'include',
       });
    const result: serverCommentsResponse = await response.json();
@@ -214,7 +234,12 @@ export const updateComment = async (comment: CommentToUpd) => {
       {
          method: 'POST',
          body: JSON.stringify(comment),
-         headers: { "Content-Type": "application/json" },
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         },
          credentials: 'include',
       });
    const result: serverCommentsResponse = await response.json();

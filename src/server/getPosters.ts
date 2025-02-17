@@ -170,7 +170,12 @@ export const getPostersFiltered = async (filterForPosters: FilterForPosters) => 
       response = await fetch(postersUrl, {
          method: 'POST',
          body: JSON.stringify(filterToSend),
-         headers: { "Content-Type": "application/json" },
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         },
          credentials: 'include',
       });
    }
@@ -506,7 +511,12 @@ export const publishPoster = async (id: string | undefined) => {
    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(dataToUpd),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
    // serverCreatePosterResponse = serverUpdatePosterResponse
@@ -558,7 +568,12 @@ export const publishUpdatedPoster = async (id: string | undefined) => {
    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(dataToUpd),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
    // serverCreatePosterResponse = serverUpdatePosterResponse
@@ -610,7 +625,12 @@ export const rejectUpdatedPoster = async (id: string | undefined) => {
    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(dataToUpd),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
    // serverCreatePosterResponse = serverUpdatePosterResponse
@@ -662,7 +682,12 @@ export const rejectPoster = async (id: string | undefined, reason: string) => {
    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(dataToUpd),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
    // serverCreatePosterResponse = serverUpdatePosterResponse
@@ -779,7 +804,12 @@ export const deletePosterByUser = async (id: string | undefined, reason: string)
    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(dataToRequestDelete),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
    // serverCreatePosterResponse = serverUpdatePosterResponse
@@ -831,7 +861,12 @@ export const deletePosterByAdmin = async (id: string | undefined) => {
    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(dataToDelete),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
    // serverCreatePosterResponse = serverUpdatePosterResponse
@@ -910,7 +945,12 @@ export const setCommentsRead = async (posterId: number) => {
    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify({ posterId: posterId }),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
    const posters: serverNotificationsResponse = await response.json();

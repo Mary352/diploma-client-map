@@ -31,7 +31,12 @@ export const regUser = async (user: UserForReg) => {
       {
          method: 'POST',
          body: JSON.stringify(user),
-         headers: { "Content-Type": "application/json" }
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         }
       });
    const result: serverAuthResponse = await response.json();
 
@@ -84,7 +89,12 @@ export const checkUser = async (user: CheckUser) => {
       {
          method: 'POST',
          body: JSON.stringify(user),
-         headers: { "Content-Type": "application/json" }
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         }
       });
    const result: serverAuthResponse = await response.json();
    // console.log("🚀 ~ file: auth.ts:92 ~ checkUser ~ result:", result)

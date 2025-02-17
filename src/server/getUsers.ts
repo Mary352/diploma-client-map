@@ -100,7 +100,12 @@ export const getUsersFiltered = async (userRole: string) => {
       response = await fetch(postersUrl, {
          method: 'POST',
          body: JSON.stringify({ userRole: userRole }),
-         headers: { "Content-Type": "application/json" },
+         headers: {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+            'Content-Type': 'application/json;charset=utf-8'
+         },
          credentials: 'include',
       });
    }
@@ -151,7 +156,12 @@ export const updateUser = async (userNewData: UserToUpdate) => {
    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(userNewData),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
 
@@ -202,7 +212,12 @@ export const deleteUser = async (id: string) => {
    const response = await fetch(url, {
       method: 'POST',
       // body: JSON.stringify(dataToRequestDelete),
-      headers: { "Content-Type": "application/json" },
+      headers: {
+         'Access-Control-Allow-Headers': 'Content-Type',
+         'Access-Control-Allow-Origin': '*',
+         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PATCH',
+         'Content-Type': 'application/json;charset=utf-8'
+      },
       credentials: 'include',
    });
    // serverCreatePosterResponse = serverUpdatePosterResponse
