@@ -21,14 +21,15 @@ npm install
 ```
 
 ### Настройка переменных среды
-В diploma-server-map требуется указать переменные среды:
+В [diploma-server-map](https://github.com/Mary352/diploma-server-map) требуется указать переменные среды:
 - DATABASE_URL, которая представляет собой строку подключения к Microsoft SQL Server;
 - PORT - порт на котором запускается backend;
 - COOKIE_SECRET - строка или массив, используемые для подписи файлов cookie;
 - ACCESS_KEY - второй параметр (secretOrPrivateKey) для операции jwt.sign из библиотеки jsonwebtoken;
 - EMAIL - email администратора приложения;
 - PASSWORD - пароль для доступа к почте администратора из данного приложения.
-В diploma-client-map требуется указать переменные среды:
+
+В **diploma-client-map** требуется указать переменные среды:
 - REACT_APP_NAME - название приложения (будет выведено на главной странице);
 - REACT_APP_YEARS_TO_SAVE_USERS - количество лет, которое аккаунт пользователя будет храниться в базе данных приложения;
 - Ключи для работы с API Яндекс.Карты, полученные в кабинете разработчика Яндекс:
@@ -52,4 +53,5 @@ npm run start
 
 ## Try on Render
 https://diploma-client-map.onrender.com
+
 *Изображения у объявлений не отображаются в Render. Просмотр с изображениями доступен при запуске на localhost.
