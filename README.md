@@ -49,7 +49,7 @@ npm run start
 ```
 
 ## Возможности
-Описаны в docs/Руководство пользователя.pdf и продемонстрированы на видео docs/demonstration.mp4
+Описаны в docs/Руководство пользователя.pdf и продемонстрированы на [видео](https://disk.yandex.ru/i/m2KU2yOyuyLs1Q), которое можно найти также и в docs/demonstration.mp4
 
 ## Try on Render
 https://diploma-client-map.onrender.com
