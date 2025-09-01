@@ -49,11 +49,11 @@ npm run start
 ```
 
 ## Возможности
-Описаны в docs/Руководство пользователя.pdf и продемонстрированы на [видео](https://disk.yandex.ru/i/m2KU2yOyuyLs1Q), которое можно найти также и в docs/demonstration.mp4
+Описаны в [docs/Руководство пользователя.pdf](https://github.com/Mary352/diploma-client-map/blob/master/docs/%D0%A0%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE%20%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8F.pdf) и продемонстрированы на [видео](https://disk.yandex.ru/i/m2KU2yOyuyLs1Q), которое можно найти также и в docs/demonstration.mp4
 
 ## Try on Render
 https://diploma-client-map.onrender.com
 
 ## Примечания
 - Изображения у объявлений не отображаются в Render. Просмотр с изображениями доступен при запуске на localhost.
-- Срок хостинга базы данных истекает 14 апреля 2025 года.
+- Срок хостинга базы данных истекает 30 октября 2025 года.
