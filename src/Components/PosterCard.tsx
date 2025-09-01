@@ -10,6 +10,7 @@ import { DOMAIN, UPLOAD, posterStatuses } from '../types/commonVars';
 import { useAppSelector } from '../store/store';
 
 export const PosterCard = ({ poster }: PosterCardProps) => {
+   const navigate = useNavigate()
    console.log('Image: ', DOMAIN + UPLOAD + '/' + poster.photoLink)
    // const isNotAdmin = localStorage.getItem('isNotAdmin')
    const isNotAdminStorage = localStorage.getItem('isNotAdmin')
@@ -17,28 +18,7 @@ export const PosterCard = ({ poster }: PosterCardProps) => {
    const isAuth = useAppSelector(state => state.posters.isAuth)
    const isNotAdmin = useAppSelector(state => state.posters.isNotAdmin)
 
-   const currentUserId = localStorage.getItem('userId')
-
-   // const BOOK_TEST = {
-   //    "title": "Google SketchUp Cookbook",
-   //    "subtitle": "Practical Recipes and Essential Techniques",
-   //    "isbn13": "9780596155117",
-   //    "price": "$8.88",
-   //    "image": "https://itbook.store/img/books/9780596155117.png",
-   //    "url": "https://itbook.store/books/9780596155117"
-   // }
-
-   // const BOOK_TEST_LONG_TITLE = {
-   //    "title": "Professional SharePoint 2010 Branding and User Interface Design",
-   //    "subtitle": "",
-   //    "isbn13": "9780470584644",
-   //    "price": "$3.98",
-   //    "image": "https://itbook.store/img/books/9780470584644.png",
-   //    "url": "https://itbook.store/books/9780470584644"
-   // }
-
-   const navigate = useNavigate()
-
+   const currentUserId = localStorage.getItem('userId');
    return (
       // <Grid item xs={12} md={3} sx={{
       //    mx: 4,
@@ -93,17 +73,16 @@ export const PosterCard = ({ poster }: PosterCardProps) => {
                <CardMedia
                   component="img"
                   // height="100%"
-                  image={DOMAIN + UPLOAD + '/' + poster.photoLink}
+                  // image={DOMAIN + UPLOAD + '/' + poster.photoLink}
+                  image={DOMAIN + '/posters/file/' + poster.photoLink}
                   alt="poster"
                   sx={{
                      width: '100%',
-                     // width: '100%',
                      height: '60%',
                      maxHeight: '300px',
                      objectFit: 'contain',
                      marginX: 'auto',
                      marginY: '0',
-                     // bgcolor: '#00ff00'
                   }}
                />
                <CardContent

@@ -1,6 +1,4 @@
-// export const DOMAIN = "http://localhost:5000";
-// for Render
-export const DOMAIN = "https://diploma-server-map.onrender.com";
+export const DOMAIN = process.env.REACT_APP_DOMAIN;
 
 export const UPLOAD = "/uploads";
 
