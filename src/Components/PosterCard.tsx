@@ -74,7 +74,12 @@ export const PosterCard = ({ poster }: PosterCardProps) => {
                   component="img"
                   // height="100%"
                   // image={DOMAIN + UPLOAD + '/' + poster.photoLink}
-                  image={DOMAIN + '/posters/file/' + poster.photoLink}
+                  // ! на сервере get buffer и сформировать ObjectURL? / getFileDownloadLink?
+                  // image={DOMAIN + '/posters/file/' + poster.photoLink}
+                  // image={'https://disk.yandex.by/client/disk/uploads/' + poster.photoLink}
+                  // https://disk.yandex.ru/d/UBkQjRwX4XywzQ
+                  image={'https://disk.yandex.ru/d/UBkQjRwX4XywzQ/' + poster.photoLink}
+
                   alt="poster"
                   sx={{
                      width: '100%',
